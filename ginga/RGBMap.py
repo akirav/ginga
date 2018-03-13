@@ -6,8 +6,10 @@
 #
 import numpy as np
 
-from ginga.misc import Callback
+from ginga.misc import Callback, Settings
 from ginga import ColorDist
+from ginga import cmap as mod_cmap
+from ginga import imap as mod_imap
 
 
 class RGBMapError(Exception):
@@ -71,10 +73,38 @@ class RGBMapper(Callback.Callbacks):
     # result
     #
 
-    def __init__(self, logger, dist=None):
+    def __init__(self, logger, dist=None, settings=None):
         Callback.Callbacks.__init__(self)
 
         self.logger = logger
+
+        # Create settings and set defaults
+        if settings is None:
+            settings = Settings.SettingGroup(logger=self.logger)
+        self.settings = settings
+        self.t_ = settings
+        self.settings_keys = ['color_map','intensity_map',
+                              'color_array', 'shift_array',
+                              'color_algorithm', 'color_hashsize',
+                              ]
+
+        # add our defaults
+        self.t_.add_defaults(color_map='gray', intensity_map='ramp',
+                             color_algorithm='linear',
+                             color_hashsize=65535,
+                             color_array=None, shift_array=None)
+        self.t_.get_setting('color_map').add_callback('set',
+                                                      self.color_map_set_cb)
+        self.t_.get_setting('intensity_map').add_callback('set',
+                                                          self.intensity_map_set_cb)
+        self.t_.get_setting('color_array').add_callback('set',
+                                                        self.color_array_set_cb)
+        self.t_.get_setting('shift_array').add_callback('set',
+                                                        self.shift_array_set_cb)
+        self.t_.get_setting('color_hashsize').add_callback('set',
+                                                           self.color_hashsize_set_cb)
+        self.t_.get_setting('color_algorithm').add_callback('set',
+                                                            self.color_algorithm_set_cb)
 
         # For color and intensity maps
         self.cmap = None
@@ -88,9 +118,11 @@ class RGBMapper(Callback.Callbacks):
         self.nptype = np.uint8
 
         # For scaling algorithms
-        hashsize = 65536
+        hashsize = self.t_.get('color_hashsize', 65536)
         if dist is None:
-            dist = ColorDist.LinearDist(hashsize)
+            color_alg_name = self.t_.get('color_algorithm', 'linear')
+            color_dist_class = ColorDist.get_dist(color_alg_name)
+            dist = color_dist_class(hashsize)
         self.dist = dist
 
         self.reset_sarr(callback=False)
@@ -98,6 +130,22 @@ class RGBMapper(Callback.Callbacks):
         # For callbacks
         for name in ('changed', ):
             self.enable_callback(name)
+
+        cm_name = self.t_.get('color_map', 'gray')
+        self.set_color_map(cm_name)
+
+        im_name = self.t_.get('intensity_map', 'ramp')
+        self.set_intensity_map(im_name)
+
+    def get_settings(self):
+        return self.t_
+
+    def set_color_map(self, cmap_name):
+        self.t_.set(color_map=cmap_name)
+
+    def color_map_set_cb(self, setting, cmap_name):
+        cm = mod_cmap.get_cmap(cmap_name)
+        self.set_cmap(cm, callback=True)
 
     def set_cmap(self, cmap, callback=True):
         """
@@ -108,7 +156,10 @@ class RGBMapper(Callback.Callbacks):
         """
         self.cmap = cmap
         self.calc_cmap()
-        self.recalc(callback=callback)
+        # TEMP: ignore passed callback parameter
+        # callback=False in the following because we don't want to
+        # recursively invoke set_cmap()
+        self.t_.set(color_map=cmap.name, callback=False)
 
     def get_cmap(self):
         """
@@ -119,20 +170,26 @@ class RGBMapper(Callback.Callbacks):
     def calc_cmap(self):
         clst = self.cmap.clst
         arr = np.array(clst).transpose() * float(self.maxv)
-        self.carr = np.round(arr).astype(self.nptype)
+        carr = np.round(arr).astype(self.nptype)
+        self.t_.set(color_array=carr)
 
     def invert_cmap(self, callback=True):
-        self.carr = np.fliplr(self.carr)
-        self.recalc(callback=callback)
+        carr = np.fliplr(self.carr)
+        # TEMP: ignore passed callback parameter
+        self.t_.set(color_array=carr)
 
     def rotate_cmap(self, num, callback=True):
-        self.carr = np.roll(self.carr, num, axis=1)
-        self.recalc(callback=callback)
+        carr = np.roll(self.carr, num, axis=1)
+        # TEMP: ignore passed callback parameter
+        self.t_.set(color_array=carr)
 
     def restore_cmap(self, callback=True):
         self.reset_sarr(callback=False)
+        # TEMP: ignore passed callback parameter
         self.calc_cmap()
-        self.recalc(callback=callback)
+
+    def reset_cmap(self):
+        self.recalc()
 
     def get_rgb(self, index):
         """
@@ -153,6 +210,13 @@ class RGBMapper(Callback.Callbacks):
                 self.arr[1][index],
                 self.arr[2][index])
 
+    def set_intensity_map(self, imap_name):
+        self.t_.set(intensity_map=imap_name)
+
+    def intensity_map_set_cb(self, setting, imap_name):
+        im = mod_imap.get_imap(imap_name)
+        self.set_imap(im, callback=True)
+
     def set_imap(self, imap, callback=True):
         """
         Set the intensity map used by this RGBMapper.
@@ -162,7 +226,11 @@ class RGBMapper(Callback.Callbacks):
         """
         self.imap = imap
         self.calc_imap()
-        self.recalc(callback=callback)
+        # TEMP: ignore passed callback parameter
+        self.recalc()
+        # callback=False in the following because we don't want to
+        # recursively invoke set_imap()
+        self.t_.set(intensity_map=imap.name, callback=False)
 
     def get_imap(self):
         """
@@ -176,36 +244,53 @@ class RGBMapper(Callback.Callbacks):
 
     def reset_sarr(self, callback=True):
         maxlen = self.maxv + 1
-        self.sarr = np.arange(maxlen)
         self.scale_pct = 1.0
-        if callback:
-            self.make_callback('changed')
-
-    def set_sarr(self, sarr, callback=True):
-        sarr = np.asarray(sarr)
-        maxlen = self.maxv + 1
-        _len = len(sarr)
-        if _len != maxlen:
-            raise RGBMapError("shift map length %d != %d" % (_len, maxlen))
-        self.sarr = sarr.astype(np.uint)
-        self.scale_pct = 1.0
-        if callback:
-            self.make_callback('changed')
+        sarr = np.arange(maxlen)
+        # TEMP: ignore passed callback parameter
+        self.t_.set(shift_array=sarr)
 
     def get_sarr(self):
         return self.sarr
 
-    def set_carr(self, carr, callback=True):
-        carr = np.asarray(carr)
-        maxlen = self.maxv + 1
-        self.carr = carr.astype(self.nptype)
-        _len = carr.shape[1]
-        if _len != maxlen:
-            raise RGBMapError("color map length %d != %d" % (_len, maxlen))
-        self.recalc(callback=callback)
+    def set_sarr(self, sarr, callback=True):
+        if sarr is not None:
+            sarr = np.asarray(sarr)
+        # TEMP: ignore passed callback parameter
+        self.t_.set(shift_array=sarr)
+
+    def shift_array_set_cb(self, setting, sarr):
+        if sarr is not None:
+            sarr = np.asarray(sarr)
+            maxlen = self.maxv + 1
+            _len = len(sarr)
+            if _len != maxlen:
+                raise RGBMapError("shift map length %d != %d" % (_len, maxlen))
+            self.sarr = sarr.astype(np.uint)
+            self.scale_pct = 1.0
+            self.make_callback('changed')
+        else:
+            self.reset_sarr(callback=True)
 
     def get_carr(self):
         return self.carr
+
+    def set_carr(self, carr, callback=True):
+        if carr is not None:
+            carr = np.asarray(carr)
+        # TEMP: ignore passed callback parameter
+        self.t_.set(color_array=carr, callback=True)
+
+    def color_array_set_cb(self, setting, carr):
+        if carr is not None:
+            carr = np.asarray(carr)
+            maxlen = self.maxv + 1
+            self.carr = carr.astype(self.nptype)
+            _len = carr.shape[1]
+            if _len != maxlen:
+                raise RGBMapError("color map length %d != %d" % (_len, maxlen))
+        else:
+            self.calc_cmap()
+        self.recalc(callback=True)
 
     def recalc(self, callback=True):
         self.arr = np.copy(self.carr)
@@ -225,9 +310,12 @@ class RGBMapper(Callback.Callbacks):
         return self.dist.get_hash_size()
 
     def set_hash_size(self, size, callback=True):
+        # TEMP: ignore passed callback parameter
+        self.t_.set(color_hashsize=size)
+
+    def color_hashsize_set_cb(self, setting, size):
         self.dist.set_hash_size(size)
-        if callback:
-            self.make_callback('changed')
+        self.make_callback('changed')
 
     def get_hash_algorithms(self):
         return ColorDist.get_dist_names()
@@ -246,10 +334,14 @@ class RGBMapper(Callback.Callbacks):
         if callback:
             self.make_callback('changed')
 
-    def set_hash_algorithm(self, name, callback=True, **kwdargs):
-        hashsize = self.dist.get_hash_size()
-        dist = ColorDist.get_dist(name)(hashsize, **kwdargs)
-        self.set_dist(dist, callback=callback)
+    def set_hash_algorithm(self, name, callback=True, **kwargs):
+        # TODO: deal with algorithm parameters in kwargs
+        self.t_.set(color_algorithm=name)
+
+    def color_algorithm_set_cb(self, setting, name):
+        size = self.t_.get('color_hashsize', self.dist.get_hash_size())
+        dist = ColorDist.get_dist(name)(size)
+        self.set_dist(dist, callback=True)
 
     def get_order_indexes(self, order, cs):
         order = order.upper()
@@ -368,9 +460,7 @@ class RGBMapper(Callback.Callbacks):
         maxlen = self.maxv + 1
         assert len(work) == maxlen, \
             RGBMapError("shifted shift map is != %d" % maxlen)
-        self.sarr = work
-        if callback:
-            self.make_callback('changed')
+        self.t_.set(shift_array=work)
 
     def scale_and_shift(self, scale_pct, shift_pct, callback=True):
         """Stretch and/or shrink the color map via altering the shift map.
@@ -407,9 +497,7 @@ class RGBMapper(Callback.Callbacks):
         assert len(work) == maxlen, \
             RGBMapError("shifted shift map is != %d" % maxlen)
 
-        self.sarr = work
-        if callback:
-            self.make_callback('changed')
+        self.t_.set(shift_array=work)
 
     def stretch(self, scale_factor, callback=True):
         """Stretch the color map via altering the shift map.
@@ -418,16 +506,12 @@ class RGBMapper(Callback.Callbacks):
         self.scale_and_shift(self.scale_pct, 0.0, callback=callback)
 
     def copy_attributes(self, dst_rgbmap):
-        dst_rgbmap.set_cmap(self.cmap, callback=False)
-        dst_rgbmap.set_imap(self.imap, callback=False)
-        dst_rgbmap.set_hash_algorithm(str(self.dist), callback=False)
-        # TODO: set hash size
-        dst_rgbmap.carr = np.copy(self.carr)
-        dst_rgbmap.sarr = np.copy(self.sarr)
-        dst_rgbmap.recalc()
+        self.t_.copy_settings(dst_rgbmap.get_settings(),
+                              keylist=self.settings_keys)
 
-    def reset_cmap(self):
-        self.recalc()
+    def share_attributes(self, dst_rgbmap):
+        self.t_.share_settings(dst_rgbmap.get_settings(),
+                               keylist=self.settings_keys)
 
 
 class NonColorMapper(RGBMapper):
