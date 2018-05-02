@@ -13,7 +13,7 @@ import logging
 
 import ginga.util.six as six
 from ginga.tkw.ImageViewTk import ImageViewCanvas
-from ginga import AstroImage
+from ginga.util.loader import load_data
 
 if six.PY2:
     import Tkinter
@@ -45,8 +45,8 @@ class FitsViewer(object):
         fi.enable_autocuts('on')
         fi.set_autocut_params('zscale')
         fi.enable_autozoom('on')
+        fi.enable_auto_orient(True)
         fi.set_bg(0.2, 0.2, 0.2)
-        fi.ui_setActive(True)
         fi.show_pan_mark(True)
         self.fitsimage = fi
 
@@ -74,8 +74,7 @@ class FitsViewer(object):
         return self.root
 
     def load_file(self, filepath):
-        image = AstroImage.AstroImage(logger=self.logger)
-        image.load_file(filepath)
+        image = load_data(filepath, logger=self.logger)
         self.fitsimage.set_image(image)
         self.root.title(filepath)
 

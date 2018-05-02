@@ -4,12 +4,12 @@
 # This is open-source software licensed under a BSD license.
 # Please see the file LICENSE.txt for details.
 #
+import numpy as np
+
 from ginga import trcalc
 from ginga.util import io_rgb
 from ginga.misc import Bunch
-from ginga.BaseImage import BaseImage, Header
-
-import numpy as np
+from ginga.BaseImage import BaseImage, Header, ImageError
 
 
 class RGBImage(BaseImage):
@@ -34,18 +34,11 @@ class RGBImage(BaseImage):
         blu = self.get_slice('B')
         blu[:] = int(ch_max * b)
 
-    def load_file(self, filepath):
-        kwds = Header()
-        metadata = {'header': kwds, 'path': filepath}
+    def load_file(self, filespec, **kwargs):
+        if self.io is None:
+            raise ImageError("No IO loader defined")
 
-        # TODO: ideally we would be informed by channel order
-        # in result by io_rgb
-        data_np = self.io.load_file(filepath, kwds)
-
-        self.set_data(data_np, metadata=metadata)
-
-        if not (self.name is None):
-            self.set(name=self.name)
+        self.io.load_file(filespec, dstobj=self, **kwargs)
 
     def save_as_file(self, filepath):
         data = self._get_data()
