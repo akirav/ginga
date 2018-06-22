@@ -177,7 +177,8 @@ elif wname == 'vbox':
     vbox.add_widget(w)
 
 elif wname == 'splitter':
-    w = Widgets.Splitter()
+    
+    w = Widgets.Splitter(orientation='vertical')
     w.add_widget(Widgets.Label('Content of Pane 1'))
     w.add_widget(Widgets.Label('Content of Pane 2'))
     vbox.add_widget(w, stretch=1)
@@ -274,6 +275,14 @@ elif wname == 'dialog':
     w.add_callback('activated', lambda w: dia.hide())
     hbox.add_widget(w)
     vbox.add_widget(hbox)
+
+elif wname == 'test':
+    w = Widgets.Splitter()
+    w.add_widget(Widgets.Label('Content of Pane 1'))
+    w.add_widget(Widgets.Label('Content of Pane 2'))
+    w.add_widget(Widgets.Label('Content of Pane 3'))
+    vbox.add_widget(w, stretch=1)
+
 
 else:
     # default to label
