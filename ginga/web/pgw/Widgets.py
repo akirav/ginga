@@ -449,6 +449,7 @@ class Button(WidgetBase):
         self.widget = None
 
         self.enable_callback('activated')
+	print 'Text: ' + self.text
 
     def _cb_redirect(self, event):
         self.make_callback('activated')
@@ -599,7 +600,6 @@ class SpinBox(WidgetBase):
 
         return self.html_template % d  # noqa
 
-
 class Slider(WidgetBase):
 
     html_template = '''
@@ -622,15 +622,20 @@ class Slider(WidgetBase):
         self.minval = dtype(0)
         self.maxval = dtype(0)
         self.incr = dtype(0)
+	print '__INIT__Testing Slider'
+	print '__INIT__Orientation: ' + orientation
+	print '__INIT__Self Orientation: ' + self.orientation
 
         if orientation == 'vertical':
             self.add_css_styles([('-webkit-appearance', 'slider-vertical')])
+	    print '__INIT__Checking Orientation if statement'
 
         self.enable_callback('value-changed')
 
     def _cb_redirect(self, event):
         self.value = self.dtype(event.value)
-        self.make_callback('value-changed', self.value)
+       	self.make_callback('value-changed', self.value)
+	print '__redirect__Self Value: ' + self.value
 
     def get_value(self):
         return self.value
@@ -646,6 +651,7 @@ class Slider(WidgetBase):
         self.minval = minval
         self.maxval = maxval
         self.incr = incr_value
+	print 'min' + str(minval) + 'mav: ' + str(maxval) + 'incr_value: ' + str(incr_value)
 
     def render(self):
         d = dict(id=self.id, value=str(self.dtype(self.value)),
@@ -657,9 +663,17 @@ class Slider(WidgetBase):
                  styles=self.get_css_styles(fmt='str'))
         if self.orientation == 'vertical':
             # firefox
-            d['orient'] = 'orient=vertical'
-        if not self.enabled:
+            #d['orient'] = 'orient=vertical'
+	    d['orient'] = 'vertical'
+	    print 'Checking self orientation if statement'
+        	
+	if not self.enabled:
             d['disabled'] = 'disabled'
+	    
+	 #print d['orient'] + d['id']
+
+	a = self.html_template % d
+	print a
 
         return self.html_template % d  # noqa
 
@@ -690,7 +704,7 @@ class ScrollBar(WidgetBase):
         self.widget = None
         self.value = 0
         self.thickness = 15
-
+	print 'test2'
         self.enable_callback('activated')
 
     def _cb_redirect(self, event):
@@ -955,7 +969,6 @@ class StatusBar(Label):
     def set_message(self, msg_str, duration=10.0):
         # TODO: remove message in about `duration` seconds
         self.set_text(msg_str)
-
 
 class TreeView(WidgetBase):
 
@@ -1513,7 +1526,7 @@ class Frame(ContainerBase):
         if self.label is not None:
             d['legend'] = "<legend>%s</legend>" % self.label
 
-        self.html_template % d
+       	return  self.html_template % d
 
 
 class Expander(ContainerBase):
@@ -2301,6 +2314,7 @@ class Application(Callback.Callbacks):
     <script type="text/javascript" src="/js/jqwidgets/jqxtoolbar.js"></script>
     <script type="text/javascript" src="/js/jqwidgets/jqxdatatable.js"></script>
     <script type="text/javascript" src="/js/jqwidgets/jqxtreegrid.js"></script>
+    <script type="text/javascript" src="/js/jqwidgets/jqxslider.js"></script>
     ''',
     }
 
