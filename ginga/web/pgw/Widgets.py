@@ -603,39 +603,39 @@ class SpinBox(WidgetBase):
 class Slider(WidgetBase):
 
     html_template = '''
-    <input id=%(id)s type="range" %(disabled)s
-       class="%(classes)s" style="%(styles)s"
-       onchange="ginga_app.widget_handler('activate', '%(id)s',
-                       document.getElementById('%(id)s').value)"
-       value="%(value)s" step="%(incr)s" max="%(max)s" min="%(min)s
-       orient="%(orient)s">
+    <div id='%(id)s' class="%(classes)s" style="%(styles)s">
+    </div>
+    <script type="text/javascript">
+    $(document).ready(function () {
+    $('#%(id)s').jqxSlider({ orientation: '%(orientation)s,  width: %(width)s, height: %(height)s, value: '%(value)s' , max: '%(max)s', min: '%(min)s',  });
+    $('#%(id)s').on('change', function (event) {
+    ginga_app.widget_handler('activate', '%(id)s', parseInt(event.currentValue));
+    });
+    });
+    </script>
     '''
 
     def __init__(self, orientation='horizontal', dtype=int, track=False):
         super(Slider, self).__init__()
-
+        print 'test'
         self.orientation = orientation
         self.track = track
         self.widget = None
         self.dtype = dtype
         self.value = dtype(0)
-        self.minval = dtype(0)
-        self.maxval = dtype(0)
-        self.incr = dtype(0)
-	print '__INIT__Testing Slider'
-	print '__INIT__Orientation: ' + orientation
-	print '__INIT__Self Orientation: ' + self.orientation
-
-        if orientation == 'vertical':
-            self.add_css_styles([('-webkit-appearance', 'slider-vertical')])
-	    print '__INIT__Checking Orientation if statement'
+        self.min = dtype(0)
+        self.max = dtype(0)
+        self.step = dtype(0)
+        print '__INIT__Testing Slider'
+        print '__INIT__Orientation: ' + orientation
+        print '__INIT__Self Orientation: ' + self.orientation
 
         self.enable_callback('value-changed')
 
     def _cb_redirect(self, event):
-        self.value = self.dtype(event.value)
-       	self.make_callback('value-changed', self.value)
-	print '__redirect__Self Value: ' + self.value
+        self.value = event.value
+        self.make_callback('activated', self.value)
+        print '__redirect__Self Value: ' + self.value
 
     def get_value(self):
         return self.value
@@ -647,35 +647,30 @@ class Slider(WidgetBase):
     def set_tracking(self, tf):
         pass
 
-    def set_limits(self, minval, maxval, incr_value=1):
-        self.minval = minval
-        self.maxval = maxval
-        self.incr = incr_value
-	print 'min' + str(minval) + 'mav: ' + str(maxval) + 'incr_value: ' + str(incr_value)
+    def set_limits(self, min, max, incr_value = 1):
+        self.min = min
+        self.max = max
+        self.step = incr_value
+#        print 'min' + str(min) + ' max: ' + str(max) + ' step_value: ' + str(step_value)
 
     def render(self):
         d = dict(id=self.id, value=str(self.dtype(self.value)),
-                 incr=str(self.dtype(self.incr)),
-                 max=str(self.dtype(self.maxval)),
-                 min=str(self.dtype(self.minval)),
-                 disabled='', orient='',
+                 step=str(self.dtype(self.step)),
+                 max=str(self.dtype(self.max)),
+                 min=str(self.dtype(self.min)),
+                 disabled='', orientation='',
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
         if self.orientation == 'vertical':
-            # firefox
-            #d['orient'] = 'orient=vertical'
-	    d['orient'] = 'vertical'
-	    print 'Checking self orientation if statement'
-        	
-	if not self.enabled:
-            d['disabled'] = 'disabled'
-	    
-	 #print d['orient'] + d['id']
+           d['orientation'] = 'vertical'
+           d['width'], d['height'] = self.height, self.width
 
-	a = self.html_template % d
-	print a
+        if not self.enabled:
+           d['disabled'] = 'disabled'
 
-        return self.html_template % d  # noqa
+    a = self.html_template % d
+    print a
+    return self.html_template % d  # noqa
 
 
 class ScrollBar(WidgetBase):
@@ -704,7 +699,7 @@ class ScrollBar(WidgetBase):
         self.widget = None
         self.value = 0
         self.thickness = 15
-	print 'test2'
+	    print 'test2'
         self.enable_callback('activated')
 
     def _cb_redirect(self, event):

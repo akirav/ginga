@@ -109,7 +109,7 @@ elif wname == 'spinbox':
     vbox.add_widget(w)
 
 elif wname == 'slider':
-    w = Widgets.Slider(orientation='horizontal')
+    w = Widgets.Slider(orientation='vertical')
     w.set_limits(-10, 10, incr_value=1)
     w.set_value(4)
     vbox.add_widget(w)
@@ -120,7 +120,7 @@ elif wname == 'scrollbar':
     vbox.add_widget(w)
 
 elif wname == 'progressbar':
-    w = Widgets.ProgressBar()
+    w = Widgets.ProgressBar(orientation='horizontal')
     w.set_value(0.6)
     vbox.add_widget(w)
 
@@ -177,7 +177,6 @@ elif wname == 'vbox':
     vbox.add_widget(w)
 
 elif wname == 'splitter':
-    
     w = Widgets.Splitter(orientation='vertical')
     w.add_widget(Widgets.Label('Content of Pane 1'))
     w.add_widget(Widgets.Label('Content of Pane 2'))
