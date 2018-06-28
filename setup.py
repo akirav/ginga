@@ -82,6 +82,16 @@ package_info['package_data'][PACKAGENAME].append('examples/*/*')
 package_info['package_data'][PACKAGENAME].append('web/pgw/js/*.js')
 package_info['package_data'][PACKAGENAME].append('web/pgw/js/*.css')
 
+#Added
+package_info['package_data'][PACKAGENAME].append('web/pgw/js/jqwidgets/*.js')
+package_info['package_data'][PACKAGENAME].append('web/pgw/js/jqwidgets/globalization/*.js')
+package_info['package_data'][PACKAGENAME].append('web/pgw/js/jqwidgets/styles/*.css')
+package_info['package_data'][PACKAGENAME].append('web/pgw/js/jqwidgets/styles/images/*.gif')
+package_info['package_data'][PACKAGENAME].append('web/pgw/js/jqwidgets/styles/images/*.png')
+package_info['package_data'][PACKAGENAME].append('web/pgw/js/jqwidgets/styles/images/*/*.png') 
+#
+
+
 # Define entry points for command-line scripts
 entry_points = {'console_scripts': []}
 
