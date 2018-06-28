@@ -109,8 +109,8 @@ elif wname == 'spinbox':
     vbox.add_widget(w)
 
 elif wname == 'slider':
-    w = Widgets.Slider(orientation='horizontal')
-    w.set_limits(-10, 10, 50, 300 ,incr_value=1)
+    w = Widgets.Slider(orientation='vertical')
+    w.set_limits(-10, 10,incr_value=1)
     w.set_value(4)
     vbox.add_widget(w)
 
@@ -131,7 +131,8 @@ elif wname == 'statusbar':
 
 elif wname == 'image':
     w = Widgets.Image()
-    w.load_file(os.path.join(icondir, 'ginga-512x512.png'))
+    print(os.path.join('Desktop', 'subi-300x300.png'))
+    w.load_file(os.path.join('Desktop', 'subi-300x300.png'))
     vbox.add_widget(w)
 
 elif wname == 'treeview':
@@ -220,7 +221,14 @@ elif wname == 'gridbox':
     w.add_widget(Widgets.Label('Content of Grid Area 2'), 0, 1)
     w.add_widget(Widgets.Label('Content of Grid Area 3'), 1, 0)
     w.add_widget(Widgets.Label('Content of Grid Area 4'), 1, 1)
+    
+    #Added for Testing Purposes
+    w.add_widget(Widgets.Label('Content of Grid Area 5'), 2, 0)
+    w.add_widget(Widgets.Label('Content of Grid Area 6'), 2, 1)
+    w.add_widget(Widgets.Button('Test Button'), 3, 0)
+    w.add_widget(Widgets.Button('Test Button2'), 3, 1)
     vbox.add_widget(w, stretch=1)
+    #
 
 elif wname == 'menubar':
     w = Widgets.Menubar()
