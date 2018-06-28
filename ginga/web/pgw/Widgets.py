@@ -709,7 +709,9 @@ class ScrollBar(WidgetBase):
         self.orientation = orientation
         self.widget = None
         self.value = 0
-        self.thickness = 15
+        #self.thickness = 15
+	self.height = 20
+	self.width = 300
         self.enable_callback('activated')
 
     def _cb_redirect(self, event):
@@ -722,10 +724,10 @@ class ScrollBar(WidgetBase):
                  styles=self.get_css_styles(fmt='str'))
         if self.orientation == 'vertical':
             d['vert'] = 'true'
-            d['width'], d['height'] = self.thickness, "'100%'"
+            d['width'], d['height'] =  self.height, self.width
         else:
             d['vert'] = 'false'
-            d['width'], d['height'] = "'100%'", self.thickness
+            d['width'], d['height'] = self.width, self.height
 
         return self.html_template % d
 
