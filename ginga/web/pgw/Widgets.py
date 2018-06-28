@@ -607,9 +607,9 @@ class Slider(WidgetBase):
     </div>
     <script type="text/javascript">
     $(document).ready(function () {
-    $('#%(id)s').jqxSlider({ orientation: '%(orientation)s,  width: %(width)s, height: %(height)s, value: '%(value)s' , max: '%(max)s', min: '%(min)s',  });
+    $('#%(id)s').jqxSlider({ orientation: '%(orientation)s', value: %(value)s , max: %(max)s, min: %(min)s, height: %(height)s , width: %(width)s });
     $('#%(id)s').on('change', function (event) {
-    ginga_app.widget_handler('activate', '%(id)s', parseInt(event.currentValue));
+    ginga_app.widget_handler('activate', '%(id)s', parseInt(event.args.value));
     });
     });
     </script>
@@ -626,6 +626,8 @@ class Slider(WidgetBase):
         self.min = dtype(0)
         self.max = dtype(0)
         self.step = dtype(0)
+	self.width = dtype(0)
+	self.height = dtype(0)
         print '__INIT__Testing Slider'
         print '__INIT__Orientation: ' + orientation
         print '__INIT__Self Orientation: ' + self.orientation
@@ -633,9 +635,11 @@ class Slider(WidgetBase):
         self.enable_callback('value-changed')
 
     def _cb_redirect(self, event):
-        self.value = event.value
-        self.make_callback('activated', self.value)
-        print '__redirect__Self Value: ' + self.value
+        print 'Event Value = ' + str(event.value)
+	self.value = self.dtype(event.value)
+	self.make_callback('value-changed', self.value)
+	
+	print '__redirect__Self Value: ' + str(self.value)
 
     def get_value(self):
         return self.value
@@ -647,30 +651,37 @@ class Slider(WidgetBase):
     def set_tracking(self, tf):
         pass
 
-    def set_limits(self, min, max, incr_value = 1):
+    def set_limits(self, min, max, height, width, incr_value = 1):
         self.min = min
         self.max = max
+	self.height = height;
+	self.width = width;
         self.step = incr_value
-#        print 'min' + str(min) + ' max: ' + str(max) + ' step_value: ' + str(step_value)
+        print 'min' + str(min) + ' max: ' + str(max) + ' step_value: ' + str(incr_value)
 
     def render(self):
-        d = dict(id=self.id, value=str(self.dtype(self.value)),
+        d = dict(id=self.id, value=self.value,
                  step=str(self.dtype(self.step)),
-                 max=str(self.dtype(self.max)),
+                 height='', width ='',
+		 max=str(self.dtype(self.max)),
                  min=str(self.dtype(self.min)),
                  disabled='', orientation='',
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
         if self.orientation == 'vertical':
            d['orientation'] = 'vertical'
-           d['width'], d['height'] = self.height, self.width
+	   d['width'], d['height'] = self.height, self.width
+
+	else:
+	   d['orientation'] = 'horizontal'
+	   d['width'], d['height'] = self.width, self.height
 
         if not self.enabled:
            d['disabled'] = 'disabled'
 
-    a = self.html_template % d
-    print a
-    return self.html_template % d  # noqa
+    	a = self.html_template % d
+    	print a
+    	return self.html_template % d  # noqa
 
 
 class ScrollBar(WidgetBase):
@@ -699,7 +710,6 @@ class ScrollBar(WidgetBase):
         self.widget = None
         self.value = 0
         self.thickness = 15
-	    print 'test2'
         self.enable_callback('activated')
 
     def _cb_redirect(self, event):
