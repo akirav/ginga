@@ -626,8 +626,8 @@ class Slider(WidgetBase):
         self.min = dtype(0)
         self.max = dtype(0)
         self.step = dtype(0)
-	self.width = dtype(0)
-	self.height = dtype(0)
+	self.width = 300
+	self.height = 50
         print '__INIT__Testing Slider'
         print '__INIT__Orientation: ' + orientation
         print '__INIT__Self Orientation: ' + self.orientation
@@ -651,11 +651,9 @@ class Slider(WidgetBase):
     def set_tracking(self, tf):
         pass
 
-    def set_limits(self, min, max, height, width, incr_value = 1):
+    def set_limits(self, min, max, incr_value = 1):
         self.min = min
         self.max = max
-	self.height = height;
-	self.width = width;
         self.step = incr_value
         print 'min' + str(min) + ' max: ' + str(max) + ' step_value: ' + str(incr_value)
 
@@ -970,6 +968,16 @@ class ProgressBar(WidgetBase):
 
 
 class StatusBar(Label):
+    
+    html_template = '''
+   <div id=%(id)s class="%(classes)s" style="%(styles)s">%(text)s</div>
+   <script>
+   var curr_seconds = new Date().getTime() / 1000;
+
+   
+   </script>
+    '''
+    
     def __init__(self):
         super(StatusBar, self).__init__()
 
@@ -1672,20 +1680,25 @@ class TabWidget(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-        if self._tabs_visible:
-            # draw tabs
-            res = ['''<ul class="ui-tabs-nav">\n''']
-            for child in self.get_children():
-                res.append('''<li> <a href="#%s-%s"> %s </a></li>\n''' % (
+        # draw tabs
+	res = ['''<ul class="ui-tabs-nav">\n''']
+        for child in self.get_children():
+             if self._tabs_visible:
+	    	res.append('''<li> <a style=""  href="#%s-%s"> %s </a></li>\n''' % (
                     self.id, child.id, child.extdata.tab_title))
-            res.append("</ul>\n")
-            d['tabs'] = '\n'.join(res)
+             else:
+		res.append('''<li> <a style="display: none"  href="#%s-%s"> %s </a></li>\n''' % (
+                    self.id, child.id, child.extdata.tab_title))
+             
+	res.append("</ul>\n")
+        d['tabs'] = '\n'.join(res)
 
         res = ['''<div id="%s-%s"> %s </div>\n''' % (self.id, child.id,
                                                      child.render())
                for child in self.get_children()]
         d['content'] = '\n'.join(res)
 
+	print(self.html_template % d)
         return self.html_template % d
 
 
@@ -1694,6 +1707,8 @@ class StackWidget(TabWidget):
         super(StackWidget, self).__init__(tabpos='top', reorderable=False,
                                           detachable=False, group=-1)
         self._tabs_visible = False
+
+	
 
 
 class MDIWidget(TabWidget):
@@ -1868,7 +1883,8 @@ class GridBox(ContainerBase):
         self.add_ref(child)
         self.num_rows = max(self.num_rows, row + 1)
         self.num_cols = max(self.num_cols, col + 1)
-        self.tbl[(row, col)] = child
+        print 'self_rows: ' + str(self.num_rows) + ' self_col ' + str(self.num_cols)
+	self.tbl[(row, col)] = child
 
         app = self.get_app()
         app.do_operation('update_html', id=self.id,

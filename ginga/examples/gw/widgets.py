@@ -207,7 +207,16 @@ elif wname == 'stackwidget':
     w = Widgets.StackWidget()
     w.add_widget(Widgets.Label('Content of Stack 1'))
     w.add_widget(Widgets.Label('Content of Stack 2'))
+   # vbox.add_widget(w, stretch=1)
+    hbox = Widgets.HBox()
+    sbox = Widgets.SpinBox(dtype=int)
+    sbox.set_limits(0, 1, incr_value=1)
+    sbox.set_value(0)
+    sbox.add_callback('value-changed', lambda sbx, val: w.set_index(val))
+    hbox.add_widget(sbox)
     vbox.add_widget(w, stretch=1)
+    vbox.add_widget(hbox, stretch=0)
+
 
 elif wname == 'mdiwidget':
     w = Widgets.MDIWidget()
