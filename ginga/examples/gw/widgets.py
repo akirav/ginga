@@ -131,8 +131,7 @@ elif wname == 'statusbar':
 
 elif wname == 'image':
     w = Widgets.Image()
-    print(os.path.join('Desktop', 'subi-300x300.png'))
-    w.load_file(os.path.join('Desktop', 'subi-300x300.png'))
+    w.load_file(os.path.join(icondir, 'ginga-512x512.png'))
     vbox.add_widget(w)
 
 elif wname == 'treeview':
