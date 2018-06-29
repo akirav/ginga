@@ -207,7 +207,7 @@ elif wname == 'stackwidget':
     w = Widgets.StackWidget()
     w.add_widget(Widgets.Label('Content of Stack 1'))
     w.add_widget(Widgets.Label('Content of Stack 2'))
-   # vbox.add_widget(w, stretch=1)
+    #vbox.add_widget(w, stretch=1)
     hbox = Widgets.HBox()
     sbox = Widgets.SpinBox(dtype=int)
     sbox.set_limits(0, 1, incr_value=1)
@@ -220,10 +220,12 @@ elif wname == 'stackwidget':
 
 elif wname == 'mdiwidget':
     w = Widgets.MDIWidget()
-    w.add_widget(Widgets.Label('Content of MDI Area 1'))
-    w.add_widget(Widgets.Label('Content of MDI Area 2'))
+    w.add_widget(Widgets.Label('Content of MDI Area 1'),title='test1')
+    w.add_widget(Widgets.Label('Content of MDI Area 2'),title='test2')
+    w.add_widget(Widgets.SpinBox(dtype=int), title='test3')
+    w.add_widget(Widgets.CheckBox("Check me"), title='test4')
     vbox.add_widget(w, stretch=1)
-
+    
 elif wname == 'gridbox':
     w = Widgets.GridBox(rows=2, columns=2)
     w.add_widget(Widgets.Label('Content of Grid Area 1'), 0, 0)

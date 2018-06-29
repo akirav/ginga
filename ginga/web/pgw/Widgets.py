@@ -1,4 +1,4 @@
-#
+﻿#
 # Widgets.py -- wrapped HTML widgets and convenience functions
 #
 # This is open-source software licensed under a BSD license.
@@ -25,7 +25,8 @@ __all__ = ['WidgetError', 'WidgetBase', 'TextEntry', 'TextEntrySet',
            'Canvas', 'ContainerBase', 'Box', 'HBox', 'VBox', 'Frame',
            'Expander', 'TabWidget', 'StackWidget', 'MDIWidget', 'ScrollArea',
            'Splitter', 'GridBox', 'ToolbarAction', 'Toolbar', 'MenuAction',
-           'Menu', 'Menubar', 'TopLevel', 'Application', 'Dialog',
+           'Menu', 'Menubar', #'WebView', 
+	   'TopLevel', 'Application', 'Dialog',
            'name_mangle', 'make_widget', 'hadjust', 'build_info', 'wrap',
            'has_webkit']
 
@@ -1698,8 +1699,11 @@ class TabWidget(ContainerBase):
                for child in self.get_children()]
         d['content'] = '\n'.join(res)
 
-	print(self.html_template % d)
-        return self.html_template % d
+	a = self.html_template % d
+	print(a)
+	print('--------------------------------------------------------------------------------------------------------------------')
+        
+	return self.html_template % d
 
 
 class StackWidget(TabWidget):
@@ -1708,32 +1712,97 @@ class StackWidget(TabWidget):
                                           detachable=False, group=-1)
         self._tabs_visible = False
 
-	
+# class MDIWidget(TabWidget):
+#    def __init__(self, tabpos='top', mode='tabs'):
+#        super(MDIWidget, self).__init__(tabpos=tabpos)
+#
+#        self.mode = 'tabs'
+#        self.true_mdi = False
+#
+#    def get_mode(self):
+#        return self.mode
+#
+#    def set_mode(self, mode):
+#        pass
+#
+#    def tile_panes(self):
+#        pass
+#
+#    def cascade_panes(self):
+#        pass
+#
+#   def use_tabs(self, tf):
+#        pass
+
+class MDIWidget(ContainerBase):
+	html_template = '''
+	<div id='%(id)s' class="%(classes)s" style="%(styles)s">
+        	<div>
+		 	%(windows)s
+		</div>
+    	</div>
+
+	<script type="text/javascript">
+        $(document).ready(function () {
+            $('#%(id)s').jqxDocking({ width: 300, theme: 'energyblue'});
+            $('#%(id)s').jqxDocking({ windowsMode: { %(winmode)s } });
+	});
+	</script>
+    '''
+
+	def __init__(self):
+		super(MDIWidget, self).__init__()
+		self.titles = []
 
 
-class MDIWidget(TabWidget):
+	def add_widget(self, child, title=''):
+		self.add_ref(child)
+		self.titles.append(title)
+		child.extdata.tab_title = title
 
-    def __init__(self, tabpos='top', mode='tabs'):
-        super(MDIWidget, self).__init__(tabpos=tabpos)
+		app= self.get_app()
+		self.make_callback('widget-added', child)
 
-        self.mode = 'tabs'
-        self.true_mdi = False
+	#def add_winmode()
 
-    def get_mode(self):
-        return self.mode
+	#def _cb_redirect
 
-    def set_mode(self, mode):
-        pass
+	def render(self):
+		#print self.html_template
+		print('--------------------------------------------------------------------------------------------------------------------')
+		d = dict(id=self.id, classes=self.get_css_classes(fmt='str'),
+		styles=self.get_css_styles(fmt='str'), windows='' ,
+		winmode='')
 
-    def tile_panes(self):
-        pass
+		res = []
+		for child in self.get_children():
+			res.append('''
+			<div id="%s-%s">
+				<div>%s</div>
+				%s
+			</div>
+			
+			''' % (self.id,child.id,child.extdata.tab_title,child.render())
+			)
+		d['windows'] = '\n'.join(res)
 
-    def cascade_panes(self):
-        pass
+		res= []
+		for child in self.get_children():
+			res.append(''' '%s-%s': 'docked',''' % (self.id, child.id)
+			)
+			print(child)
+			print(len(self.get_children()))
 
-    def use_tabs(self, tf):
-        pass
+		print()
+		d['winmode'] = '\n'.join(res)
+		print(res)
+		print('-------------------------')
+		print(res[:-1])
 
+
+		#print (self.html_template % d)
+
+		return self.html_template % d
 
 class ScrollArea(ContainerBase):
 
@@ -2168,6 +2237,30 @@ class Menubar(ContainerBase):
 
         return self.html_template % d
 
+#class WebView(ContainerBase):	
+#	html_template = '''
+#	<div id='%(id)s' class="%(classes)s" style="%(styles)s">
+#	<button onclick="Browseropen()">Click to open Browser</button>
+#	</div>
+#	<script>
+#	function Browseropen()
+#	{ window.open("%(link)s");}
+#	</script>
+#	'''
+#	
+#	def __init__(self):
+#	    self.link = ""
+#	
+#	def load_url(self,url):
+#	    self.link = url
+#	    self.add_css_classes(['hbox'])
+#
+#	def render(self):
+#	    d = dict(id = self.id, classes=self.get_css_classes(fmt='str'),
+#	    styles=self.get_css_styles(fmt='str'), link = self.link)
+#	    a = html_template % d
+#	    print a
+#	    return a
 
 class TopLevel(ContainerBase):
 
@@ -2182,7 +2275,7 @@ class TopLevel(ContainerBase):
         height: 100%%;
         padding: 0px;
         margin: 0px;
-        border: 0;
+        #border: 0;
         overflow-x: hidden; /* disable horizontal scrollbar */
         display: block; /* no floating content on sides */
       }
@@ -2325,6 +2418,8 @@ class Application(Callback.Callbacks):
     <!-- For jQWidgets -->
     <link rel="stylesheet" href="/js/jqwidgets/styles/jqx.base.css" type="text/css" />
     <script type="text/javascript" src="/js/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="/js/jqwidgets/jqxwindow.js"></script>
+    <script type="text/javascript" src="/js/jqwidgets/jqxdocking.js"></script>
     <script type="text/javascript" src="/js/jqwidgets/jqxdata.js"></script>
     <script type="text/javascript" src="/js/jqwidgets/jqxbuttons.js"></script>
     <script type="text/javascript" src="/js/jqwidgets/jqxscrollbar.js"></script>
