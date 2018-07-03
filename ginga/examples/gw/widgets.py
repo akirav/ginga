@@ -109,13 +109,13 @@ elif wname == 'spinbox':
     vbox.add_widget(w)
 
 elif wname == 'slider':
-    w = Widgets.Slider(orientation='vertical')
+    w = Widgets.Slider(orientation='horizontal')
     w.set_limits(-10, 10,incr_value=1)
     w.set_value(4)
     vbox.add_widget(w)
 
 elif wname == 'scrollbar':
-    w = Widgets.ScrollBar(orientation='horizontal')
+    w = Widgets.ScrollBar(orientation='vertical')
     w.add_callback('activated', lambda w, val: logger.info("value is %d" % val))
     vbox.add_widget(w)
 
@@ -215,7 +215,7 @@ elif wname == 'stackwidget':
     hbox.add_widget(sbox)
     vbox.add_widget(w, stretch=1)
     vbox.add_widget(hbox, stretch=0)
-
+    print('check')
 
 elif wname == 'mdiwidget':
     w = Widgets.MDIWidget()
@@ -224,14 +224,14 @@ elif wname == 'mdiwidget':
     w.add_widget(Widgets.SpinBox(dtype=int), title='test3')
     w.add_widget(Widgets.CheckBox("Check me"), title='test4')
     vbox.add_widget(w, stretch=1)
-    
+
 elif wname == 'gridbox':
     w = Widgets.GridBox(rows=2, columns=2)
     w.add_widget(Widgets.Label('Content of Grid Area 1'), 0, 0)
     w.add_widget(Widgets.Label('Content of Grid Area 2'), 0, 1)
     w.add_widget(Widgets.Label('Content of Grid Area 3'), 1, 0)
     w.add_widget(Widgets.Label('Content of Grid Area 4'), 1, 1)
-    
+
     #Added for Testing Purposes
     w.add_widget(Widgets.Label('Content of Grid Area 5'), 2, 0)
     w.add_widget(Widgets.Label('Content of Grid Area 6'), 2, 1)

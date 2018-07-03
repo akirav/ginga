@@ -25,7 +25,7 @@ __all__ = ['WidgetError', 'WidgetBase', 'TextEntry', 'TextEntrySet',
            'Canvas', 'ContainerBase', 'Box', 'HBox', 'VBox', 'Frame',
            'Expander', 'TabWidget', 'StackWidget', 'MDIWidget', 'ScrollArea',
            'Splitter', 'GridBox', 'ToolbarAction', 'Toolbar', 'MenuAction',
-           'Menu', 'Menubar', #'WebView', 
+           'Menu', 'Menubar', #'WebView',
 	   'TopLevel', 'Application', 'Dialog',
            'name_mangle', 'make_widget', 'hadjust', 'build_info', 'wrap',
            'has_webkit']
@@ -450,7 +450,6 @@ class Button(WidgetBase):
         self.widget = None
 
         self.enable_callback('activated')
-	print 'Text: ' + self.text
 
     def _cb_redirect(self, event):
         self.make_callback('activated')
@@ -618,7 +617,6 @@ class Slider(WidgetBase):
 
     def __init__(self, orientation='horizontal', dtype=int, track=False):
         super(Slider, self).__init__()
-        print 'test'
         self.orientation = orientation
         self.track = track
         self.widget = None
@@ -627,20 +625,15 @@ class Slider(WidgetBase):
         self.min = dtype(0)
         self.max = dtype(0)
         self.step = dtype(0)
-	self.width = 300
-	self.height = 50
-        print '__INIT__Testing Slider'
-        print '__INIT__Orientation: ' + orientation
-        print '__INIT__Self Orientation: ' + self.orientation
+        self.width = 300
+        self.height = 50
 
         self.enable_callback('value-changed')
 
     def _cb_redirect(self, event):
-        print 'Event Value = ' + str(event.value)
-	self.value = self.dtype(event.value)
-	self.make_callback('value-changed', self.value)
-	
-	print '__redirect__Self Value: ' + str(self.value)
+        #print 'Event Value = ' + str(event.value)
+        self.value = self.dtype(event.value)
+        self.make_callback('value-changed', self.value)
 
     def get_value(self):
         return self.value
@@ -656,7 +649,6 @@ class Slider(WidgetBase):
         self.min = min
         self.max = max
         self.step = incr_value
-        print 'min' + str(min) + ' max: ' + str(max) + ' step_value: ' + str(incr_value)
 
     def render(self):
         d = dict(id=self.id, value=self.value,
@@ -677,9 +669,6 @@ class Slider(WidgetBase):
 
         if not self.enabled:
            d['disabled'] = 'disabled'
-
-    	a = self.html_template % d
-    	print a
     	return self.html_template % d  # noqa
 
 
@@ -969,16 +958,16 @@ class ProgressBar(WidgetBase):
 
 
 class StatusBar(Label):
-    
+
     html_template = '''
    <div id=%(id)s class="%(classes)s" style="%(styles)s">%(text)s</div>
    <script>
    var curr_seconds = new Date().getTime() / 1000;
 
-   
+
    </script>
     '''
-    
+
     def __init__(self):
         super(StatusBar, self).__init__()
 
@@ -1682,27 +1671,20 @@ class TabWidget(ContainerBase):
                  styles=self.get_css_styles(fmt='str'))
 
         # draw tabs
-	res = ['''<ul class="ui-tabs-nav">\n''']
+        res = ['''<ul class="ui-tabs-nav">\n''']
         for child in self.get_children():
              if self._tabs_visible:
-	    	res.append('''<li> <a style=""  href="#%s-%s"> %s </a></li>\n''' % (
+                 res.append('''<li> <a style=""  href="#%s-%s"> %s </a></li>\n''' % (
                     self.id, child.id, child.extdata.tab_title))
              else:
-		res.append('''<li> <a style="display: none"  href="#%s-%s"> %s </a></li>\n''' % (
+                 res.append('''<li> <a style="display: none"  href="#%s-%s"> %s </a></li>\n''' % (
                     self.id, child.id, child.extdata.tab_title))
-             
-	res.append("</ul>\n")
+        res.append("</ul>\n")
         d['tabs'] = '\n'.join(res)
-
-        res = ['''<div id="%s-%s"> %s </div>\n''' % (self.id, child.id,
-                                                     child.render())
-               for child in self.get_children()]
+        res = ['''<div id="%s-%s"> %s </div>\n''' % (self.id, child.id,child.render())
+        for child in self.get_children()]
         d['content'] = '\n'.join(res)
 
-	a = self.html_template % d
-	print(a)
-	print('--------------------------------------------------------------------------------------------------------------------')
-        
 	return self.html_template % d
 
 
@@ -1768,8 +1750,6 @@ class MDIWidget(ContainerBase):
 	#def _cb_redirect
 
 	def render(self):
-		#print self.html_template
-		print('--------------------------------------------------------------------------------------------------------------------')
 		d = dict(id=self.id, classes=self.get_css_classes(fmt='str'),
 		styles=self.get_css_styles(fmt='str'), windows='' ,
 		winmode='')
@@ -1781,7 +1761,7 @@ class MDIWidget(ContainerBase):
 				<div>%s</div>
 				%s
 			</div>
-			
+
 			''' % (self.id,child.id,child.extdata.tab_title,child.render())
 			)
 		d['windows'] = '\n'.join(res)
@@ -1790,18 +1770,9 @@ class MDIWidget(ContainerBase):
 		for child in self.get_children():
 			res.append(''' '%s-%s': 'docked',''' % (self.id, child.id)
 			)
-			print(child)
-			print(len(self.get_children()))
-
-		print()
 		d['winmode'] = '\n'.join(res)
-		print(res)
-		print('-------------------------')
-		print(res[:-1])
-
 
 		#print (self.html_template % d)
-
 		return self.html_template % d
 
 class ScrollArea(ContainerBase):
@@ -2237,7 +2208,7 @@ class Menubar(ContainerBase):
 
         return self.html_template % d
 
-#class WebView(ContainerBase):	
+#class WebView(ContainerBase):
 #	html_template = '''
 #	<div id='%(id)s' class="%(classes)s" style="%(styles)s">
 #	<button onclick="Browseropen()">Click to open Browser</button>
@@ -2247,10 +2218,10 @@ class Menubar(ContainerBase):
 #	{ window.open("%(link)s");}
 #	</script>
 #	'''
-#	
+#
 #	def __init__(self):
 #	    self.link = ""
-#	
+#
 #	def load_url(self,url):
 #	    self.link = url
 #	    self.add_css_classes(['hbox'])
