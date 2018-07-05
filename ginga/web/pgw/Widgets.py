@@ -1716,6 +1716,7 @@ class StackWidget(TabWidget):
 #   def use_tabs(self, tf):
 #        pass
 
+#TODO: Add Collapse Button and maybe add a maximize button
 class MDIWidget(ContainerBase):
 	html_template = '''
 	<div id='%(id)s' class="%(classes)s" style="%(styles)s">
@@ -1817,14 +1818,15 @@ class ScrollArea(ContainerBase):
 
 
 class Splitter(ContainerBase):
+# Note: Width and Height need to be pixels
 
     html_template = """
     <div id='%(id)s' class="%(classes)s" style="%(styles)s">
-      %(panels)s
+            %(panels)s
     </div>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#%(id)s').jqxSplitter({ width: '100%%', height: '100%%',
+            $('#%(id)s').jqxSplitter({ width: '300px', height: '300px',
                                        orientation: '%(orient)s',
                                        disabled: %(disabled)s,
                                        panels: %(sizes)s
@@ -1841,18 +1843,51 @@ class Splitter(ContainerBase):
     </script>
     """
 
-    def __init__(self, orientation='horizontal'):
+    html_template2 = """
+    <div id='%(id)s' class="%(classes)s" style="%(styles)s">
+            %(panels)s
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#%(id)s').jqxSplitter({ width: '%(width)s', height: '%(height)s',
+                                       orientation: '%(orient)s',
+                                       disabled: %(disabled)s,
+                                       panels: %(sizes)s
+                                        });
+            $('#%(id)s').on('resize', function (event) {
+                 var sizes = [];
+                 for (i = 0; i < event.args.panels.length; i++) {
+                     var panel = event.args.panels[i];
+                     sizes.push(panel.size);
+                 }
+                 ginga_app.widget_handler('activate', '%(id)s', sizes);
+            });
+        });
+    {console.log('width: ' + window.innerWidth)}
+    {console.log('height: ' + window.innerHeight)}
+    </script>
+
+
+    """
+
+    def __init__(self, orientation):
         super(Splitter, self).__init__()
 
         self.orientation = orientation
+        self.more_splitters = []
         self.widget = None
         self.sizes = []
-
+        self.width = ''
+        self.height = ''
         self.enable_callback('activated')
+        #print 'Orientation: ' + self.orientation
 
     def add_widget(self, child):
         self.add_ref(child)
         self.make_callback('widget-added', child)
+        if self.num_orientation != self.num_orientation() + 1:
+            print 'Need to'
+        print (self.num_children())
 
     def get_sizes(self):
         return self.sizes
@@ -1860,8 +1895,18 @@ class Splitter(ContainerBase):
     def set_sizes(self, sizes):
         self.sizes = sizes
 
+    def set_limits(self, width , height):
+        self.width = width
+        self.height = height
         # TODO:
         #self.call_custom_method('set_sizes', sizes=self.sizes)
+
+    def add_orientation(self,orientation):
+        self.orientation.append(orientation)
+        print self.orientation
+
+    def num_orientation(self):
+        return len(self.orientation)
 
     def _cb_redirect(self, event):
         self.set_sizes(event.value)
@@ -1871,6 +1916,8 @@ class Splitter(ContainerBase):
     def render(self):
         panels = ['''<div> %s </div>''' % (child.render())
                   for child in self.get_children()]
+        #panels = [''' %s ''' % (child.render())
+                  # for child in self.get_children()]
         sizes = ['''{ size: %d }''' % size
                  for size in self.sizes]
         disabled = str(not self.enabled).lower()
@@ -1879,12 +1926,15 @@ class Splitter(ContainerBase):
         else:
             orient = 'vertical'
         d = dict(id=self.id, panels='\n'.join(panels), disabled=disabled,
+                 width = self.width, height = self.height,
                  sizes='[ %s ]' % ','.join(sizes), orient=orient,
-                 width=500, height=500,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-        return self.html_template % d
+        #print(self.html_template2)
+        #print('------------------------------------------------')
+        #print (self.html_template2 % d)
+        return self.html_template2 % d
 
 
 class GridBox(ContainerBase):
