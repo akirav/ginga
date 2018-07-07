@@ -179,10 +179,12 @@ elif wname == 'vbox':
 elif wname == 'splitter':
     w = Widgets.Splitter(orientation='horizontal')
     w.set_limits('300px','400px')
+    w.add_split('horizontal')
     w.add_widget(Widgets.Label('Content of Pane 1'))
     w.add_widget(Widgets.Label('Content of Pane 2'))
-    #w.add_widget(Widgets.Label('Content of Pane 3'))
-    w.add_orientation('vertical')
+    w.add_widget(Widgets.Label('Content of Pane 3'))
+    w.add_split('vertical')
+    #Add widget/child components in here
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'scrollarea':

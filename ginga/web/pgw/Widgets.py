@@ -1684,8 +1684,8 @@ class TabWidget(ContainerBase):
         res = ['''<div id="%s-%s"> %s </div>\n''' % (self.id, child.id,child.render())
         for child in self.get_children()]
         d['content'] = '\n'.join(res)
-
-	return self.html_template % d
+        print self.html_template % d
+        return self.html_template % d
 
 
 class StackWidget(TabWidget):
@@ -1866,28 +1866,57 @@ class Splitter(ContainerBase):
     {console.log('width: ' + window.innerWidth)}
     {console.log('height: ' + window.innerHeight)}
     </script>
+    """
 
-
+    html_template3 = """
+    <div id='%(id)s' class="%(classes)s" style="%(styles)s">
+            %(panels)s
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#%(id)s').jqxSplitter({ width: '%(width)s', height: '%(height)s',
+                                       orientation: '%(orient)s',
+                                       disabled: %(disabled)s,
+                                       panels: %(sizes)s
+                                        });
+            {$(splits)s}
+            $('#%(id)s').on('resize', function (event) {
+                 var sizes = [];
+                 for (i = 0; i < event.args.panels.length; i++) {
+                     var panel = event.args.panels[i];
+                     sizes.push(panel.size);
+                 }
+                 ginga_app.widget_handler('activate', '%(id)s', sizes);
+            });
+        });
+    {console.log('width: ' + window.innerWidth)}
+    {console.log('height: ' + window.innerHeight)}
+    </script>
     """
 
     def __init__(self, orientation):
         super(Splitter, self).__init__()
 
         self.orientation = orientation
+        self.sequence = []
         self.more_splitters = []
         self.widget = None
         self.sizes = []
         self.width = ''
         self.height = ''
         self.enable_callback('activated')
+        self.s_child_count = 0
+        self.s_split_count = 0
+
         #print 'Orientation: ' + self.orientation
 
     def add_widget(self, child):
         self.add_ref(child)
+        self.sequence.append('child')
         self.make_callback('widget-added', child)
-        if self.num_orientation != self.num_orientation() + 1:
-            print 'Need to'
-        print (self.num_children())
+
+    def add_split(self, split):
+        self.sequence.append(str(split))
 
     def get_sizes(self):
         return self.sizes
@@ -1901,10 +1930,6 @@ class Splitter(ContainerBase):
         # TODO:
         #self.call_custom_method('set_sizes', sizes=self.sizes)
 
-    def add_orientation(self,orientation):
-        self.orientation.append(orientation)
-        print self.orientation
-
     def num_orientation(self):
         return len(self.orientation)
 
@@ -1914,27 +1939,79 @@ class Splitter(ContainerBase):
         self.make_callback('activated', self.sizes)
 
     def render(self):
+
+        splitlist = []
+        splits=[]
+
+        for p in self.sequence:
+            #print p
+            if p != 'child':
+                self.s_split_count += 1
+                #print '\tSplit Count: ' + str(self.s_split_count)
+                splitlist.append(p)
+            else:
+                self.s_child_count += 1
+                #print '\tChild Count: ' + str(self.s_child_count)
+
+        #print 'Printing Split List: '
+        #for s in splitlist: print s
+
+
+        #For 2 Children
         panels = ['''<div> %s </div>''' % (child.render())
                   for child in self.get_children()]
+
+        # Adding
+        #splits = [''' $('#%(id)s').jqxSplitter({ width: '100%', height: '100%',
+        #orientation: '%(orient)s'}); ''' % ({'orient': 'test'},{'id':'%(id)s'})]
+        count = 1
+
+        for p in splitlist:
+            splits.append('''$('#{}-{}').jqxSplitter({{ width: '100%%', height: '100%%',
+            orientation: '{}'}});'''.format('%(id)s',count,p))
+            count += 1
+        print 'splits: '
+        for s in splits: print s
+
+        self.html_template3 = self.html_template3.replace('{$(splits)s}','\n'.join(splits))
+        #
+        print 'Panels: '
+        for p in panels: print p
+
+
         #panels = [''' %s ''' % (child.render())
                   # for child in self.get_children()]
         sizes = ['''{ size: %d }''' % size
                  for size in self.sizes]
+
         disabled = str(not self.enabled).lower()
         if self.orientation == 'vertical':
             orient = 'horizontal'
         else:
             orient = 'vertical'
-        d = dict(id=self.id, panels='\n'.join(panels), disabled=disabled,
+        d = dict(id=self.id, panels='\n'.join(panels),
+                disabled=disabled,
                  width = self.width, height = self.height,
                  sizes='[ %s ]' % ','.join(sizes), orient=orient,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+
         #print(self.html_template2)
         #print('------------------------------------------------')
         #print (self.html_template2 % d)
-        return self.html_template2 % d
+
+        print self.html_template3
+        print('------------------------------------------------')
+        print self.html_template3 % d
+        print('------------------------------------------------')
+        #print 'Dictionary Split'
+        #print d['splits']
+        print('------------------------------------------------')
+        print 'splits: '
+        for s in splits: print s
+
+        return self.html_template3 % d
 
 
 class GridBox(ContainerBase):
