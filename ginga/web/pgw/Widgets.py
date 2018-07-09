@@ -1944,7 +1944,7 @@ class Splitter(ContainerBase):
         splits=[]
 
         for p in self.sequence:
-            #print p
+            print p
             if p != 'child':
                 self.s_split_count += 1
                 #print '\tSplit Count: ' + str(self.s_split_count)
@@ -1952,10 +1952,56 @@ class Splitter(ContainerBase):
             else:
                 self.s_child_count += 1
                 #print '\tChild Count: ' + str(self.s_child_count)
-
+        print 'Sequence len: ' + str(len(self.sequence))
         #print 'Printing Split List: '
         #for s in splitlist: print s
 
+        #test
+        #print 'Test'
+        #count = 0
+        #for p in self.sequence:
+        #    innercount = count +1
+        #    print 'Outer: ' + str(count)
+        #    while innercount < len(self.sequence):
+        #        print '\t Inner: ' + str(innercount)
+        #        innercount += 1
+        #    count += 1
+        #test
+
+        print 'Test 2'
+        count = 0
+        childcount = 0
+        splittercount = 0
+        testpanel = []
+        #testpanel.append('''<div> ''')
+        #for p in self.sequence:
+        while count < len(self.sequence):
+            print 'Outer: ' + str(count)
+            innercount = count +1
+            if self.sequence[count] is not 'child': #Then it is a splitter
+                splittercount += 1
+                testpanel.append('''<div>''')
+                testpanel.append('''<div id='{}-{}' >'''.format('%(id)s',splittercount))
+                print 'Is a Splitter'
+                count += 2
+                print '\tCheck count: ' + str(count)
+                while innercount <= count and innercount < len(self.sequence):
+                    childcount += 1
+                    print '\t\t Inner: ' + str(innercount) + ' Is a child'
+                    testpanel.append('''<div> test </div>''')
+                    innercount += 1
+                testpanel.append('''</div>''')
+                testpanel.append('''</div>''')
+            else: #Then it is a child
+                print 'Is a child'
+                testpanel.append('''<div> test </div>''')
+                childcount += 1
+            count += 1
+
+        #testpanel.append('''</div>''')
+        testpanel = '\n'.join(testpanel)
+        print 'Printing Test Panel'
+        print testpanel
 
         #For 2 Children
         panels = ['''<div> %s </div>''' % (child.render())
@@ -1970,14 +2016,16 @@ class Splitter(ContainerBase):
             splits.append('''$('#{}-{}').jqxSplitter({{ width: '100%%', height: '100%%',
             orientation: '{}'}});'''.format('%(id)s',count,p))
             count += 1
-        print 'splits: '
-        for s in splits: print s
+        #print 'splits: '
+        #for s in splits: print s
 
         self.html_template3 = self.html_template3.replace('{$(splits)s}','\n'.join(splits))
-        #
-        print 'Panels: '
-        for p in panels: print p
+        self.html_template3 = self.html_template3.replace('%(panels)s',testpanel)
 
+        #
+        #print 'Panels: '
+        #for p in panels: print p
+        #print('------------------------------------------------')
 
         #panels = [''' %s ''' % (child.render())
                   # for child in self.get_children()]
@@ -1989,7 +2037,7 @@ class Splitter(ContainerBase):
             orient = 'horizontal'
         else:
             orient = 'vertical'
-        d = dict(id=self.id, panels='\n'.join(panels),
+        d = dict(id=self.id, #panels='\n'.join(panels),
                 disabled=disabled,
                  width = self.width, height = self.height,
                  sizes='[ %s ]' % ','.join(sizes), orient=orient,
@@ -2001,15 +2049,15 @@ class Splitter(ContainerBase):
         #print('------------------------------------------------')
         #print (self.html_template2 % d)
 
-        print self.html_template3
+        #print self.html_template3
         print('------------------------------------------------')
         print self.html_template3 % d
-        print('------------------------------------------------')
+        #print('------------------------------------------------')
         #print 'Dictionary Split'
         #print d['splits']
         print('------------------------------------------------')
-        print 'splits: '
-        for s in splits: print s
+        #print 'splits: '
+        #for s in splits: print s
 
         return self.html_template3 % d
 
