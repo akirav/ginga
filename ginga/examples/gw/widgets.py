@@ -177,6 +177,22 @@ elif wname == 'vbox':
     vbox.add_widget(w)
 
 elif wname == 'splitter':
+    #
+    #Example on how to use the splitter
+    #       |-----------|
+    #       |     1     |
+    #       |___________|
+    #       |  2  | 3   |
+    #       |_____|_____|
+    #
+    #       w = Widgets.Splitter(orientation='horizontal')
+    #       w.set_limits('600px','800px')
+    #       w.add_widget(Widgets.Label('1'))
+    #       w.add_split('vertical')
+    #       w.add_widget(Widgets.Label('2'))
+    #       w.add_widget(Widgets.Label('3'))
+    #
+
     w = Widgets.Splitter(orientation='horizontal')
     w.set_limits('600px','800px')
     w.add_split('horizontal')

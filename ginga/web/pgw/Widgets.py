@@ -1981,7 +1981,7 @@ class Splitter(ContainerBase):
                  for size in self.sizes]
 
         disabled = str(not self.enabled).lower()
-        if self.orientation == 'vertical':
+        if self.orientation == 'horizontal':
             orient = 'horizontal'
         else:
             orient = 'vertical'
