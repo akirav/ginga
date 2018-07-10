@@ -1968,11 +1968,17 @@ class Splitter(ContainerBase):
         #    count += 1
         #test
 
-        print 'Test 2'
+# Improved Algorithm 1
+
+# Improved Algorithm 1
+
+#Algorithm 1
+        print 'Nested Loops'
         count = 0
         childcount = 0
         splittercount = 0
         testpanel = []
+        test = self.get_children()
         #testpanel.append('''<div> ''')
         #for p in self.sequence:
         while count < len(self.sequence):
@@ -1986,26 +1992,76 @@ class Splitter(ContainerBase):
                 count += 2
                 print '\tCheck count: ' + str(count)
                 while innercount <= count and innercount < len(self.sequence):
-                    childcount += 1
+
                     print '\t\t Inner: ' + str(innercount) + ' Is a child'
-                    testpanel.append('''<div> test </div>''')
+                    testpanel.append(test[childcount].render())
+                    childcount += 1
                     innercount += 1
                 testpanel.append('''</div>''')
                 testpanel.append('''</div>''')
             else: #Then it is a child
                 print 'Is a child'
-                testpanel.append('''<div> test </div>''')
+                testpanel.append(test[childcount].render())
                 childcount += 1
             count += 1
 
-        #testpanel.append('''</div>''')
+#End Algorithm 1
+
+#Testing Lists
+        test = [1,2,3,4]
+        #for t in test: print t
+
+        #print('------------------------------------------------')
+
+        temp = []
+        i = 0
+        while i < len(test):
+            temp.append(test[i] - 1)
+            i += 1
+
+        del test[:]
+        test=[]
+        i = 0
+
+        while i < len(temp):
+            test.append(temp[i])
+            i += 1
+
+        #print('------------------------------------------------')
+        #for t in test: print t
+        #print 'Testing Remove: ' + str(0 in test)
+
+        if 0 in test:
+            test.remove(0)
+            #for t in test: print t
+#End Testing of Lists
+
+        #test += 1
+        #for t in test: print t
+
         testpanel = '\n'.join(testpanel)
-        print 'Printing Test Panel'
-        print testpanel
+        #print 'Printing Test Panel'
+        #print testpanel
 
         #For 2 Children
         panels = ['''<div> %s </div>''' % (child.render())
                   for child in self.get_children()]
+
+        #print 'Testing get_children'
+        #test = self.get_children()
+        #for t in test: print t.render()
+
+        #print 'Calling Array Values'
+        #print test[0].render()
+        #print test[1].render()
+        #print test[2].render()
+        #print test[3].render()
+
+        print('------------------------------------------------')
+        print 'Panels: '
+        for p in panels: print p
+        print('------------------------------------------------')
+
 
         # Adding
         #splits = [''' $('#%(id)s').jqxSplitter({ width: '100%', height: '100%',
@@ -2023,9 +2079,7 @@ class Splitter(ContainerBase):
         self.html_template3 = self.html_template3.replace('%(panels)s',testpanel)
 
         #
-        #print 'Panels: '
-        #for p in panels: print p
-        #print('------------------------------------------------')
+
 
         #panels = [''' %s ''' % (child.render())
                   # for child in self.get_children()]
@@ -2050,12 +2104,12 @@ class Splitter(ContainerBase):
         #print (self.html_template2 % d)
 
         #print self.html_template3
-        print('------------------------------------------------')
-        print self.html_template3 % d
+        #print('------------------------------------------------')
+        #print self.html_template3 % d
         #print('------------------------------------------------')
         #print 'Dictionary Split'
         #print d['splits']
-        print('------------------------------------------------')
+        #print('------------------------------------------------')
         #print 'splits: '
         #for s in splits: print s
 
