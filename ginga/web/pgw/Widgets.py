@@ -1820,54 +1820,6 @@ class ScrollArea(ContainerBase):
 class Splitter(ContainerBase):
 # Note: Width and Height need to be pixels
 
-    html_template = """
-    <div id='%(id)s' class="%(classes)s" style="%(styles)s">
-            %(panels)s
-    </div>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#%(id)s').jqxSplitter({ width: '300px', height: '300px',
-                                       orientation: '%(orient)s',
-                                       disabled: %(disabled)s,
-                                       panels: %(sizes)s
-                                        });
-            $('#%(id)s').on('resize', function (event) {
-                 var sizes = [];
-                 for (i = 0; i < event.args.panels.length; i++) {
-                     var panel = event.args.panels[i];
-                     sizes.push(panel.size);
-                 }
-                 ginga_app.widget_handler('activate', '%(id)s', sizes);
-            });
-        });
-    </script>
-    """
-
-    html_template2 = """
-    <div id='%(id)s' class="%(classes)s" style="%(styles)s">
-            %(panels)s
-    </div>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#%(id)s').jqxSplitter({ width: '%(width)s', height: '%(height)s',
-                                       orientation: '%(orient)s',
-                                       disabled: %(disabled)s,
-                                       panels: %(sizes)s
-                                        });
-            $('#%(id)s').on('resize', function (event) {
-                 var sizes = [];
-                 for (i = 0; i < event.args.panels.length; i++) {
-                     var panel = event.args.panels[i];
-                     sizes.push(panel.size);
-                 }
-                 ginga_app.widget_handler('activate', '%(id)s', sizes);
-            });
-        });
-    {console.log('width: ' + window.innerWidth)}
-    {console.log('height: ' + window.innerHeight)}
-    </script>
-    """
-
     html_template3 = """
     <div id='%(id)s' class="%(classes)s" style="%(styles)s">
             %(panels)s
@@ -1908,8 +1860,6 @@ class Splitter(ContainerBase):
         self.s_child_count = 0
         self.s_split_count = 0
 
-        #print 'Orientation: ' + self.orientation
-
     def add_widget(self, child):
         self.add_ref(child)
         self.sequence.append('child')
@@ -1944,145 +1894,89 @@ class Splitter(ContainerBase):
         splits=[]
 
         for p in self.sequence:
-            print p
+            #print '\t'+ p
             if p != 'child':
                 self.s_split_count += 1
-                #print '\tSplit Count: ' + str(self.s_split_count)
                 splitlist.append(p)
             else:
                 self.s_child_count += 1
-                #print '\tChild Count: ' + str(self.s_child_count)
-        print 'Sequence len: ' + str(len(self.sequence))
-        #print 'Printing Split List: '
-        #for s in splitlist: print s
 
-        #test
-        #print 'Test'
-        #count = 0
-        #for p in self.sequence:
-        #    innercount = count +1
-        #    print 'Outer: ' + str(count)
-        #    while innercount < len(self.sequence):
-        #        print '\t Inner: ' + str(innercount)
-        #        innercount += 1
-        #    count += 1
-        #test
-
-# Improved Algorithm 1
-
-# Improved Algorithm 1
-
-#Algorithm 1
-        print 'Nested Loops'
+        # Variable Declaration
+        incount = []
         count = 0
+        testpanel2 =[]
+        test = self.get_children()
         childcount = 0
         splittercount = 0
-        testpanel = []
-        test = self.get_children()
-        #testpanel.append('''<div> ''')
-        #for p in self.sequence:
-        while count < len(self.sequence):
-            print 'Outer: ' + str(count)
-            innercount = count +1
-            if self.sequence[count] is not 'child': #Then it is a splitter
-                splittercount += 1
-                testpanel.append('''<div>''')
-                testpanel.append('''<div id='{}-{}' >'''.format('%(id)s',splittercount))
-                print 'Is a Splitter'
-                count += 2
-                print '\tCheck count: ' + str(count)
-                while innercount <= count and innercount < len(self.sequence):
 
-                    print '\t\t Inner: ' + str(innercount) + ' Is a child'
-                    testpanel.append(test[childcount].render())
-                    childcount += 1
-                    innercount += 1
-                testpanel.append('''</div>''')
-                testpanel.append('''</div>''')
-            else: #Then it is a child
-                print 'Is a child'
-                testpanel.append(test[childcount].render())
+        #Loop to determine what goes in the panel
+        #Terminates when the count exceeds the size of the sequence list
+        while count < len(self.sequence):
+            #Checks if there is a counter active in the list
+            #Decreases the count by 1 if there is an active counter
+            if len(incount) > 0:
+                i = 0
+                temp = []
+                while i < len(incount):
+                    temp.append(incount[i] - 1)
+                    i+=1
+                del incount[:]
+                incount = []
+                i = 0
+                while i < len(temp):
+                    incount.append(temp[i])
+                    i += 1
+                del temp[:]
+            #If the current sequence is a splitter
+            if self.sequence[count] is not 'child':
+                splittercount += 1
+                testpanel2.append('''<div>''')
+                testpanel2.append('''<div id='{}-{}' >'''.format('%(id)s',splittercount))
+
+                #Update all counters by 2 and add a new counter to the incount list
+                i = 0
+                temp = []
+                while i < len(incount):
+                    temp.append(incount[i] + 2)
+                    i+=1
+                del incount[:]
+                incount = []
+                i = 0
+                while i < len(temp):
+                    incount.append(temp[i])
+                    i += 1
+                del temp[:]
+                incount.append(2)
+            #The current sequence is a child
+            else:
+                testpanel2.append(test[childcount].render())
                 childcount += 1
+            #Checks if there is a 0 in incount
+            #If there is a zero it will place a div.
+            if 0 in incount:
+                counttemp = 0
+                for c in incount:
+                    if c == 0:
+                        counttemp += 1
+                while counttemp != 0:
+                    testpanel2.append('''</div>''')
+                    testpanel2.append('''</div>''')
+                    incount.remove(0)
+                    counttemp -= 1
             count += 1
 
-#End Algorithm 1
+        #From List to String
+        testpanel = '\n'.join(testpanel2)
 
-#Testing Lists
-        test = [1,2,3,4]
-        #for t in test: print t
-
-        #print('------------------------------------------------')
-
-        temp = []
-        i = 0
-        while i < len(test):
-            temp.append(test[i] - 1)
-            i += 1
-
-        del test[:]
-        test=[]
-        i = 0
-
-        while i < len(temp):
-            test.append(temp[i])
-            i += 1
-
-        #print('------------------------------------------------')
-        #for t in test: print t
-        #print 'Testing Remove: ' + str(0 in test)
-
-        if 0 in test:
-            test.remove(0)
-            #for t in test: print t
-#End Testing of Lists
-
-        #test += 1
-        #for t in test: print t
-
-        testpanel = '\n'.join(testpanel)
-        #print 'Printing Test Panel'
-        #print testpanel
-
-        #For 2 Children
-        panels = ['''<div> %s </div>''' % (child.render())
-                  for child in self.get_children()]
-
-        #print 'Testing get_children'
-        #test = self.get_children()
-        #for t in test: print t.render()
-
-        #print 'Calling Array Values'
-        #print test[0].render()
-        #print test[1].render()
-        #print test[2].render()
-        #print test[3].render()
-
-        print('------------------------------------------------')
-        print 'Panels: '
-        for p in panels: print p
-        print('------------------------------------------------')
-
-
-        # Adding
-        #splits = [''' $('#%(id)s').jqxSplitter({ width: '100%', height: '100%',
-        #orientation: '%(orient)s'}); ''' % ({'orient': 'test'},{'id':'%(id)s'})]
         count = 1
-
         for p in splitlist:
             splits.append('''$('#{}-{}').jqxSplitter({{ width: '100%%', height: '100%%',
             orientation: '{}'}});'''.format('%(id)s',count,p))
             count += 1
-        #print 'splits: '
-        #for s in splits: print s
 
         self.html_template3 = self.html_template3.replace('{$(splits)s}','\n'.join(splits))
         self.html_template3 = self.html_template3.replace('%(panels)s',testpanel)
 
-        #
-
-
-        #panels = [''' %s ''' % (child.render())
-                  # for child in self.get_children()]
         sizes = ['''{ size: %d }''' % size
                  for size in self.sizes]
 
@@ -2091,27 +1985,14 @@ class Splitter(ContainerBase):
             orient = 'horizontal'
         else:
             orient = 'vertical'
-        d = dict(id=self.id, #panels='\n'.join(panels),
+        d = dict(id=self.id,
                 disabled=disabled,
                  width = self.width, height = self.height,
                  sizes='[ %s ]' % ','.join(sizes), orient=orient,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-
-        #print(self.html_template2)
-        #print('------------------------------------------------')
-        #print (self.html_template2 % d)
-
-        #print self.html_template3
-        #print('------------------------------------------------')
         #print self.html_template3 % d
-        #print('------------------------------------------------')
-        #print 'Dictionary Split'
-        #print d['splits']
-        #print('------------------------------------------------')
-        #print 'splits: '
-        #for s in splits: print s
 
         return self.html_template3 % d
 
