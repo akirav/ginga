@@ -960,20 +960,31 @@ class ProgressBar(WidgetBase):
 class StatusBar(Label):
 
     html_template = '''
-   <div id=%(id)s class="%(classes)s" style="%(styles)s">%(text)s</div>
-   <script>
-   var curr_seconds = new Date().getTime() / 1000;
-
-
-   </script>
+    <div id=%(id)s class="%(classes)s" style="%(styles)s">%(text)s</div>
+    <script type="text/javascript">
+ $(document).ready(function () {
+setTimeout(function() {
+        $('#%(id)s').fadeOut();
+ }, %(duration)s);
+});
+    </script>
     '''
+
 
     def __init__(self):
         super(StatusBar, self).__init__()
+        self.duration = 0
 
-    def set_message(self, msg_str, duration=10.0):
+    def set_message(self, msg_str, duration=10):
         # TODO: remove message in about `duration` seconds
         self.set_text(msg_str)
+        self.duration = duration * 1000
+
+    def render(self):
+         d = dict(id=self.id, text=self.text, duration = self.duration,
+                 classes=self.get_css_classes(fmt='str'),
+                 styles=self.get_css_styles(fmt='str'))
+         return self.html_template % d
 
 class TreeView(WidgetBase):
 
