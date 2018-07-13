@@ -1824,9 +1824,7 @@ class ScrollArea(ContainerBase):
 
     def __init__(self):
         super(ScrollArea, self).__init__()
-
         self.widget = None
-
         self.enable_callback('configure')
 
     def set_widget(self, child):
@@ -1843,10 +1841,11 @@ class ScrollArea(ContainerBase):
         else:
             content = children[0].render()
         d = dict(id=self.id, content=content,
-                 width='100%', height='100%',
+                 width='350', height='350',
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        #print self.html_template % d
         return self.html_template % d
 
 

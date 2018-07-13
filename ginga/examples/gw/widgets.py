@@ -208,13 +208,13 @@ elif wname == 'splitter':
     w.add_widget(Widgets.Label('Content of Pane 6'))
     #Add widget/child components in here
 
-
-
-
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'scrollarea':
     w = Widgets.ScrollArea()
+    #label = Widgets.Label('Content of Pane 1')
+    #w.set_widget(label)
+
     img = Widgets.Image()
     img.load_file(os.path.join(icondir, 'ginga-512x512.png'))
     w.set_widget(img)
