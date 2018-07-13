@@ -1727,27 +1727,7 @@ class StackWidget(TabWidget):
                                           detachable=False, group=-1)
         self._tabs_visible = False
 
-# class MDIWidget(TabWidget):
-#    def __init__(self, tabpos='top', mode='tabs'):
-#        super(MDIWidget, self).__init__(tabpos=tabpos)
-#
-#        self.mode = 'tabs'
-#        self.true_mdi = False
-#
-#    def get_mode(self):
-#        return self.mode
-#
-#    def set_mode(self, mode):
-#        pass
-#
-#    def tile_panes(self):
-#        pass
-#
-#    def cascade_panes(self):
-#        pass
-#
-#   def use_tabs(self, tf):
-#        pass
+
 
 #TODO: Add Collapse Button and maybe add a maximize button
 class MDIWidget(ContainerBase):
@@ -1762,6 +1742,7 @@ class MDIWidget(ContainerBase):
         $(document).ready(function () {
             $('#%(id)s').jqxDocking({ width: 300, theme: 'energyblue'});
             $('#%(id)s').jqxDocking({ windowsMode: { %(winmode)s } });
+            %(collapse)s
 	});
 	</script>
     '''
@@ -1784,30 +1765,34 @@ class MDIWidget(ContainerBase):
 	#def _cb_redirect
 
 	def render(self):
-		d = dict(id=self.id, classes=self.get_css_classes(fmt='str'),
-		styles=self.get_css_styles(fmt='str'), windows='' ,
-		winmode='')
+            d = dict(id=self.id, classes=self.get_css_classes(fmt='str'),
+            collapse='',
+            styles=self.get_css_styles(fmt='str'), windows='' ,
+            winmode='')
 
-		res = []
-		for child in self.get_children():
-			res.append('''
-			<div id="%s-%s">
-				<div>%s</div>
-				%s
-			</div>
+            collapse_res = []
+            for child in self.get_children():
+                collapse_res.append(
+                ''' $('#%s').jqxDocking('showCollapseButton', '%s-%s');'''
+                % (self.id, self.id, child.id))
+            d['collapse'] = '\n'.join(collapse_res)
+            #print '\n'.join(collapse_res)
 
-			''' % (self.id,child.id,child.extdata.tab_title,child.render())
-			)
-		d['windows'] = '\n'.join(res)
-
-		res= []
-		for child in self.get_children():
-			res.append(''' '%s-%s': 'docked',''' % (self.id, child.id)
-			)
-		d['winmode'] = '\n'.join(res)
-
-		#print (self.html_template % d)
-		return self.html_template % d
+            res = []
+            for child in self.get_children():
+                res.append('''
+                <div id="%s-%s">
+                <div>%s</div>%s
+                </div>
+                ''' % (self.id,child.id,child.extdata.tab_title,child.render())
+                )
+            d['windows'] = '\n'.join(res)
+            res= []
+            for child in self.get_children():
+                res.append(''' '%s-%s': 'docked',''' % (self.id, child.id))
+            d['winmode'] = '\n'.join(res)
+            #print (self.html_template % d)
+            return self.html_template % d
 
 class ScrollArea(ContainerBase):
 
@@ -2372,7 +2357,7 @@ class WebView(WidgetBase):
 
     def load_url(self,url):
         self.link = url
-        
+
     def render(self):
         d = dict(id = self.id, classes=self.get_css_classes(fmt='str'),
         styles=self.get_css_styles(fmt='str'), link = self.link)
