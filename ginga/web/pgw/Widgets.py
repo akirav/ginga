@@ -868,7 +868,7 @@ class Image(WidgetBase):
 
     html_template = '''
     <img id=%(id)s src="%(src)s"  alt="%(tooltip)s"
-         class="%(classes)s" style="%(styles)s">
+         class="%(classes)s" style="%(styles)s" height="%(height)spx" width="%(width)spx">
     '''
 
     def __init__(self, native_image=None, style='normal', menu=None):
@@ -878,6 +878,8 @@ class Image(WidgetBase):
         self.img_src = ''
         self.menu = menu
         self.widget = None
+        self.height = None
+        self.width = None
 
         self.enable_callback('activated')
 
@@ -897,15 +899,35 @@ class Image(WidgetBase):
 
     def load_file(self, img_path, format=None):
         img = PgHelp.get_native_image(img_path, format=format)
+        #print 'Img Path:\n' + img + '\n'
         self._set_image(img)
+
+    def get_og_size(self):
+        from PIL import Image
+
+        im = Image.open(self.image)
+        self.width, self.height = im.size
+        print 'Width: ' + str(self.width) + ' Height: ' + str(self.height)
+
+
+    def set_size(self,width,height):
+        self.width = width
+        self.height = height
+        print 'Width: ' + str(self.width) + ' Height: ' + str(self.height)
+
 
     def render(self):
         # TODO: callback for click
-        d = dict(id=self.id, src=self.img_src, tooltip=self.tooltip,
+        # Changed tooltip from self.tooltip to 'test'
+
+        if self.width == None and self.height == None:
+            self.get_og_size()
+        d = dict(id=self.id, tooltip='test',  src=self.img_src,
                  height=self.height, width=self.width,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        #print self.html_template % d
         return self.html_template % d
 
 
@@ -2136,7 +2158,13 @@ class Toolbar(ContainerBase):
             menu = Menu()
         child = self.add_action(text)
         child.widget.add_callback('activated', lambda w: menu.popup())
+        print 'Add Menu Debug'
+        print 'text: ' + text
         return menu
+
+    def add_name(self,child):
+        child = Menu()
+        return self.add_widget(child,name)
 
     def add_separator(self):
         # self.widget.addSeparator()

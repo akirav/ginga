@@ -132,6 +132,7 @@ elif wname == 'statusbar':
 elif wname == 'image':
     w = Widgets.Image()
     w.load_file(os.path.join(icondir, 'ginga-512x512.png'))
+    w.set_size(256,256)
     vbox.add_widget(w)
 
 elif wname == 'treeview':
@@ -279,8 +280,16 @@ elif wname == 'menubar':
                                         lambda *args: logger.info("chose Curly"))
     menu.add_name('Moe').add_callback('activated',
                                       lambda *args: logger.info("chose Moe"))
+    #vbox.add_widget(w)
+    menu = w.add_name('Menu 2')
+    menu.add_name('Larry').add_callback('activated',
+                                        lambda *args: print("chose Larry"))
+    menu.add_name('Curly').add_callback('activated',
+                                        lambda *args: logger.info("chose Curly"))
+    menu.add_name('Moe').add_callback('activated',
+                                      lambda *args: logger.info("chose Moe"))
     vbox.add_widget(w)
-    vbox.add_widget(Widgets.Label("App content"), stretch=1)
+    #vbox.add_widget(Widgets.Label("App content"), stretch=1)
 
 elif wname == 'toolbar':
     w = Widgets.Toolbar()

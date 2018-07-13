@@ -233,13 +233,22 @@ class Timer(Callback.Callbacks):
 
 
 def get_image_src_from_buffer(img_buf, imgtype='png'):
-    if not isinstance(img_buf, bytes):
-        img_buf = img_buf.encode('latin1')
-    img_string = binascii.b2a_base64(img_buf)
-    if isinstance(img_string, bytes):
-        img_string = img_string.decode("utf-8")
-    return ('data:image/%s;base64,' % imgtype) + img_string
+    #print 'Debug img_src_from_buffer:\n' + img_buf + '\n'
+    #
+    #    img_buf = img_buf.encode('latin1')
+    #img_string = binascii.b2a_base64(img_buf)
+    #if isinstance(img_string, bytes):
+    #    img_string = img_string.decode("utf-8")
+    #return ('data:image/%s;base64,' % imgtype) + img_string
+    #
+    data_uri = open(img_buf, 'rb').read().encode('base64').replace('\n', '')
+    #data_uri = data_uri[:-1]
+    return ('data:image/%s;base64,%s' %(imgtype, data_uri))
 
+#Added
+def get_native_image(img_path,format):
+    return img_path
+#Added
 
 def get_icon(iconpath, size=None, format='png'):
     image = io_rgb.PILimage.open(iconpath)
@@ -254,6 +263,7 @@ def get_icon(iconpath, size=None, format='png'):
 
     icon = get_image_src_from_buffer(img_buf.getvalue(), imgtype=format)
     return icon
+
 
 
 def font_info(font_str):
