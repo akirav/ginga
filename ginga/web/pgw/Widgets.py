@@ -25,7 +25,7 @@ __all__ = ['WidgetError', 'WidgetBase', 'TextEntry', 'TextEntrySet',
            'Canvas', 'ContainerBase', 'Box', 'HBox', 'VBox', 'Frame',
            'Expander', 'TabWidget', 'StackWidget', 'MDIWidget', 'ScrollArea',
            'Splitter', 'GridBox', 'ToolbarAction', 'Toolbar', 'MenuAction',
-           'Menu', 'Menubar', #'WebView',
+           'Menu', 'Menubar', 'WebView',
 	   'TopLevel', 'Application', 'Dialog',
            'name_mangle', 'make_widget', 'hadjust', 'build_info', 'wrap',
            'has_webkit']
@@ -2356,30 +2356,29 @@ class Menubar(ContainerBase):
 
         return self.html_template % d
 
-#class WebView(ContainerBase):
-#	html_template = '''
-#	<div id='%(id)s' class="%(classes)s" style="%(styles)s">
-#	<button onclick="Browseropen()">Click to open Browser</button>
-#	</div>
-#	<script>
-#	function Browseropen()
-#	{ window.open("%(link)s");}
-#	</script>
-#	'''
-#
-#	def __init__(self):
-#	    self.link = ""
-#
-#	def load_url(self,url):
-#	    self.link = url
-#	    self.add_css_classes(['hbox'])
-#
-#	def render(self):
-#	    d = dict(id = self.id, classes=self.get_css_classes(fmt='str'),
-#	    styles=self.get_css_styles(fmt='str'), link = self.link)
-#	    a = html_template % d
-#	    print a
-#	    return a
+class WebView(WidgetBase):
+    html_template = '''
+    <div id = '%(id)s' class = "%(classes)s" style="%(styles)s">
+    <button onclick="Browseropen()">Click to open Browser</button>
+    </div>
+    <script>
+    function Browseropen(){window.open("%(link)s");}
+    </script>
+    '''
+
+    def __init__(self):
+        super(WebView, self).__init__()
+        self.link = ""
+
+    def load_url(self,url):
+        self.link = url
+        
+    def render(self):
+        d = dict(id = self.id, classes=self.get_css_classes(fmt='str'),
+        styles=self.get_css_styles(fmt='str'), link = self.link)
+        a = self.html_template % d
+        #print a
+        return a
 
 class TopLevel(ContainerBase):
 

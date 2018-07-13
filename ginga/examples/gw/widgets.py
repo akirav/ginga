@@ -152,7 +152,7 @@ elif wname == 'treeview':
 
 elif wname == 'webview':
     w = Widgets.WebView()
-    w.load_url("http://www.google.com/")
+    w.load_url("https://subarutelescope.org/")
     vbox.add_widget(w)
 
 elif wname == 'frame':
@@ -212,9 +212,6 @@ elif wname == 'splitter':
 
 elif wname == 'scrollarea':
     w = Widgets.ScrollArea()
-    #label = Widgets.Label('Content of Pane 1')
-    #w.set_widget(label)
-
     img = Widgets.Image()
     img.load_file(os.path.join(icondir, 'ginga-512x512.png'))
     w.set_widget(img)
