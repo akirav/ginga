@@ -930,11 +930,15 @@ class Image(WidgetBase):
         #print self.html_template % d
         return self.html_template % d
 
-
+# if progress bar is vertical.
+# You will either have to set the height to a fixed number, not a percantage.
+# Or if you want to use a percantage. You will have to wrap the progressbar with a div and set the height of that div
 class ProgressBar(WidgetBase):
 
     html_template = """
-    <div id='%(id)s' class="%(classes)s" style="%(styles)s">
+    <div style="height:400px">
+    <div  id='%(id)s' class="%(classes)s" style="%(styles)s">
+    </div>
     </div>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -976,6 +980,7 @@ class ProgressBar(WidgetBase):
         else:
             d['width'], d['height'] = "'100%'", self.thickness
 
+        print self.html_template % d
         return self.html_template % d
 
 
