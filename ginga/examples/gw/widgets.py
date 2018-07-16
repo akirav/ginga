@@ -109,7 +109,8 @@ elif wname == 'spinbox':
     vbox.add_widget(w)
 
 elif wname == 'slider':
-    w = Widgets.Slider(orientation='vertical')
+    #buttons take in either true or false
+    w = Widgets.Slider(orientation='vertical', buttons = 'false')
     w.set_limits(-10, 10,incr_value=1)
     w.set_value(4)
     vbox.add_widget(w)
