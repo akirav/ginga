@@ -889,7 +889,8 @@ class Image(WidgetBase):
 
     html_template = '''
     <img id=%(id)s src="%(src)s"  alt="%(tooltip)s"
-         class="%(classes)s" style="%(styles)s" height="%(height)spx" width="%(width)spx">
+         class="%(classes)s" style="%(styles)s" height="%(height)spx" width="%(width)spx"
+         onclick="ginga_app.widget_handler('activate', '%(id)s', 'clicked')" >
     '''
 
     def __init__(self, native_image=None, style='normal', menu=None):
@@ -908,8 +909,7 @@ class Image(WidgetBase):
             self._set_image(native_image)
 
     def _cb_redirect(self, event):
-        self.value = event.value
-        self.make_callback('activated', event.value)
+        self.make_callback('activated')
 
     def _set_image(self, native_image):
         self.image = native_image
@@ -934,7 +934,7 @@ class Image(WidgetBase):
     def set_size(self,width,height):
         self.width = width
         self.height = height
-        print 'Width: ' + str(self.width) + ' Height: ' + str(self.height)
+        #print 'Width: ' + str(self.width) + ' Height: ' + str(self.height)
 
 
     def render(self):

@@ -134,7 +134,9 @@ elif wname == 'statusbar':
 elif wname == 'image':
     w = Widgets.Image()
     w.load_file(os.path.join(icondir, 'ginga-512x512.png'))
+    w.add_callback('activated', lambda w: logger.info("Image was clicked"))
     w.set_size(256,256)
+
     vbox.add_widget(w)
 
 elif wname == 'treeview':
