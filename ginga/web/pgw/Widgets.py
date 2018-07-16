@@ -607,7 +607,7 @@ class Slider(WidgetBase):
     </div>
     <script type="text/javascript">
     $(document).ready(function () {
-    $('#%(id)s').jqxSlider({ orientation: '%(orientation)s', value: %(value)s , max: %(max)s, min: %(min)s, height: %(height)s , width: %(width)s });
+    $('#%(id)s').jqxSlider({ orientation: '%(orientation)s', value: %(value)s , max: %(max)s, min: %(min)s, height: %(height)s , width: %(width)s, showButtons: false });
     $('#%(id)s').on('change', function (event) {
     ginga_app.widget_handler('activate', '%(id)s', parseInt(event.args.value));
     });
@@ -997,7 +997,7 @@ setTimeout(function() {
         super(StatusBar, self).__init__()
         self.duration = 0
 
-    def set_message(self, msg_str, duration=10):
+    def set_message(self, msg_str, duration=5):
         # TODO: remove message in about `duration` seconds
         self.set_text(msg_str)
         self.duration = duration * 1000
@@ -1717,7 +1717,7 @@ class TabWidget(ContainerBase):
         res = ['''<div id="%s-%s"> %s </div>\n''' % (self.id, child.id,child.render())
         for child in self.get_children()]
         d['content'] = '\n'.join(res)
-        print self.html_template % d
+        #print self.html_template % d
         return self.html_template % d
 
 

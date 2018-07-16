@@ -109,18 +109,18 @@ elif wname == 'spinbox':
     vbox.add_widget(w)
 
 elif wname == 'slider':
-    w = Widgets.Slider(orientation='horizontal')
+    w = Widgets.Slider(orientation='vertical')
     w.set_limits(-10, 10,incr_value=1)
     w.set_value(4)
     vbox.add_widget(w)
 
 elif wname == 'scrollbar':
-    w = Widgets.ScrollBar(orientation='vertical')
+    w = Widgets.ScrollBar(orientation='horizontal')
     w.add_callback('activated', lambda w, val: logger.info("value is %d" % val))
     vbox.add_widget(w)
 
 elif wname == 'progressbar':
-    w = Widgets.ProgressBar(orientation='horizontal')
+    w = Widgets.ProgressBar(orientation='vertical')
     w.set_value(0.6)
     vbox.add_widget(w)
 
