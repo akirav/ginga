@@ -116,7 +116,8 @@ elif wname == 'slider':
     vbox.add_widget(w)
 
 elif wname == 'scrollbar':
-    w = Widgets.ScrollBar(orientation='horizontal')
+    #buttons take in either true or false
+    w = Widgets.ScrollBar(orientation='vertical',buttons = 'false')
     w.add_callback('activated', lambda w, val: logger.info("value is %d" % val))
     vbox.add_widget(w)
 

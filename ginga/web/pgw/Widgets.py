@@ -668,7 +668,7 @@ class Slider(WidgetBase):
     	   d['orientation'] = 'horizontal'
     	   d['width'], d['height'] = self.width, self.height
 
-        print 'Buttons: ' +  str(self.showButtons)
+        #print 'Buttons: ' +  str(self.showButtons)
 
         if self.showButtons == 'false':
                d['showbuttons'] = 'false'
@@ -691,7 +691,7 @@ class ScrollBar(WidgetBase):
             $('#%(id)s').jqxScrollBar({ value: %(value)d,
                                         min: 0, max: 100, step: 1,
                                         width: %(width)s, height: %(height)s,
-                                        vertical: %(vert)s });
+                                        vertical: %(vert)s, showButtons: %(showbuttons)s });
             $('#%(id)s').on('valueChanged', function (event) {
                 ginga_app.widget_handler('activate', '%(id)s',
                                          parseInt(event.currentValue));
@@ -700,15 +700,16 @@ class ScrollBar(WidgetBase):
     </script>
     '''
 
-    def __init__(self, orientation='horizontal'):
+    def __init__(self, orientation='horizontal',buttons='true'):
         super(ScrollBar, self).__init__()
 
         self.orientation = orientation
         self.widget = None
         self.value = 0
         #self.thickness = 15
-	self.height = 20
-	self.width = 300
+    	self.height = 20
+    	self.width = 300
+        self.showButtons = buttons
         self.enable_callback('activated')
 
     def _cb_redirect(self, event):
@@ -717,6 +718,7 @@ class ScrollBar(WidgetBase):
 
     def render(self):
         d = dict(id=self.id, value=self.value, disabled='',
+                showbuttons='',
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
         if self.orientation == 'vertical':
@@ -726,6 +728,16 @@ class ScrollBar(WidgetBase):
             d['vert'] = 'false'
             d['width'], d['height'] = self.width, self.height
 
+
+        if self.showButtons == 'false':
+               d['showbuttons'] = 'false'
+        else:
+               d['showbuttons'] = 'true'
+
+        if not self.enabled:
+               d['disabled'] = 'disabled'
+
+        #print self.html_template % d
         return self.html_template % d
 
 
