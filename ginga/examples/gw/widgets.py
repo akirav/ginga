@@ -209,7 +209,11 @@ elif wname == 'splitter':
     w.add_split('horizontal')
     w.add_widget(Widgets.Label('Content of Pane 4'))
     w.add_widget(Widgets.Label('Content of Pane 5'))
-    w.add_widget(Widgets.Label('Content of Pane 6'))
+    #w.add_widget(Widgets.Label('Content of Pane 6'))
+    v = Widgets.Slider(orientation='vertical', buttons = 'false')
+    v.set_limits(-10, 10,incr_value=1)
+    v.set_value(4)
+    w.add_widget(v)
     #Add widget/child components in here
 
     vbox.add_widget(w, stretch=1)

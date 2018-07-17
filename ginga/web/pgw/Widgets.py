@@ -2034,8 +2034,7 @@ class Splitter(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-        #print self.html_template3 % d
-
+        print self.html_template3 % d
         return self.html_template3 % d
 
 
