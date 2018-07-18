@@ -612,7 +612,7 @@ class Slider(WidgetBase):
     ginga_app.widget_handler('activate', '%(id)s', parseInt(event.args.value));
     });
     });
-    </script>
+    </script >
     '''
 
     def __init__(self, orientation='horizontal',buttons='false', dtype=int, track=False):
@@ -1885,7 +1885,7 @@ class Splitter(ContainerBase):
         });
     {console.log('width: ' + window.innerWidth)}
     {console.log('height: ' + window.innerHeight)}
-    </script>
+    </script >
     """
 
     def __init__(self, orientation):
@@ -1931,10 +1931,11 @@ class Splitter(ContainerBase):
         self.make_callback('activated', self.sizes)
 
     def render(self):
-
+        #Variable Declarations
         splitlist = []
         splits=[]
 
+        #Count the number of children or splitters
         for p in self.sequence:
             #print '\t'+ p
             if p != 'child':
@@ -1952,9 +1953,9 @@ class Splitter(ContainerBase):
         splittercount = 0
 
         #Loop to determine what goes in the panel
-        #Terminates when the count exceeds the size of the sequence list
         while count < len(self.sequence):
             #Checks if there is a counter active in the list
+
             #Decreases the count by 1 if there is an active counter
             if len(incount) > 0:
                 i = 0
@@ -1969,6 +1970,7 @@ class Splitter(ContainerBase):
                     incount.append(temp[i])
                     i += 1
                 del temp[:]
+
             #If the current sequence is a splitter
             if self.sequence[count] is not 'child':
                 splittercount += 1
@@ -1989,11 +1991,13 @@ class Splitter(ContainerBase):
                     i += 1
                 del temp[:]
                 incount.append(2)
+
             #The current sequence is a child
             else:
                 testpanel2.append(test[childcount].render())
                 childcount += 1
             #Checks if there is a 0 in incount
+
             #If there is a zero it will place a div.
             if 0 in incount:
                 counttemp = 0
@@ -2005,6 +2009,7 @@ class Splitter(ContainerBase):
                     testpanel2.append('''</div>''')
                     incount.remove(0)
                     counttemp -= 1
+
             count += 1
 
         #From List to String
@@ -2034,8 +2039,84 @@ class Splitter(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-        print self.html_template3 % d
-        return self.html_template3 % d
+        a =  self.html_template3 % d
+
+        #Splits the html template whenever script is found
+        b = a.split("script ")
+        #print 'Size of b: ' + str(len(b))
+
+        #If there are more than one <script> </script> pair
+        if len(b) > 3:
+            #for i, l in enumerate(b):
+                    #print str(i) +'\n'+ l + '\n--------------------------------------------------'
+
+            # Variable Declarations
+            i = 0
+            c = []
+            e = []
+
+            #Split up html and the JavaScript
+            for i, l in enumerate(b):
+                #Get all of the HTML
+                if i%2 == 0:
+                    print 'even ' + str(i)
+                    e.append(b[i])
+
+                #Get the last script file which is the script for the splitter
+                elif i == len(b) - 2:
+                    print 'last odd: ' + str(i)
+                    f = b[i]
+
+                #Get all of the script
+                else:
+                    print 'odd ' + str(i)
+                    c.append(b[i])
+
+
+            #Get rid of junk in which is the script for the splitter
+            f1 = f.split('>', 1)[1]
+            f2 = f1.rsplit('<', 1)[0]
+            #print f
+            #print '-------------------------------------------------'
+            #print f2
+
+
+            #Get rid of 'type="text/javascript">' in c which is script of other childs
+            c2 = [C.split('>', 1)[1] for C in c]
+            c3 = [C.rsplit('<', 1)[0] for C in c2]
+            c4 = '\n'.join(c3)
+            #for C in c: print C + '\n-------------'
+            #print '-------------------------------------------------'
+            #for C in c3: print C + '\n-------------'
+            #print '-------------------------------------------------'
+            #print c4
+
+            #Get rid of '<' and '>' from e which is html
+            e.pop()
+            e2= []
+            for i, E in enumerate(e):
+                if i != 0:
+                    e2.append(e[i][1:-1])
+                else:
+                    e2.append (e[i][:-1])
+            #for E in e: print E + '\n-------------'
+            #print '-------------------------------------------------'
+            #for E in e2: print E + '\n-------------'
+            #print '-------------------------------------------------'
+
+            html = '\n'.join(e2)
+            #print html
+
+
+
+            #Combination of Styles
+            script = '<script type="text/javascript">\n' + f2 + c4 + '</script>'
+            html_total = html + script
+            print html_total
+            return html_total
+
+        #print 'script'.join(b)
+        return 'script '.join(b)
 
 
 class GridBox(ContainerBase):

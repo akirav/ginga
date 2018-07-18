@@ -202,21 +202,38 @@ elif wname == 'splitter':
     w.set_limits('600px','800px')
     w.add_split('horizontal')
     w.add_widget(Widgets.Label('Content of Pane 1'))
+
+    #v = Widgets.Slider(orientation='vertical', buttons = 'false')
+    #v.set_limits(-10, 10,incr_value=1)
+    #v.set_value(4)
+    #w.add_widget(v)
+
     w.add_widget(Widgets.Label('Content of Pane 2'))
+
+    #v = Widgets.Slider(orientation='horizontal', buttons = 'false')
+    #v.set_limits(-10, 10,incr_value=1)
+    #v.set_value(4)
+    #w.add_widget(v)
+
     w.add_split('vertical')
     w.add_split('horizontal')
     w.add_widget(Widgets.Label('Content of Pane 3'))
     w.add_split('horizontal')
     w.add_widget(Widgets.Label('Content of Pane 4'))
     w.add_widget(Widgets.Label('Content of Pane 5'))
-    #w.add_widget(Widgets.Label('Content of Pane 6'))
-    v = Widgets.Slider(orientation='vertical', buttons = 'false')
-    v.set_limits(-10, 10,incr_value=1)
-    v.set_value(4)
-    w.add_widget(v)
-    #Add widget/child components in here
+    w.add_widget(Widgets.Label('Content of Pane 6'))
 
+    #v = Widgets.Slider(orientation='vertical', buttons = 'false')
+    #v.set_limits(-10, 10,incr_value=1)
+    #v.set_value(4)
+    #w.add_widget(v)
+
+
+    #Add widget/child components in here
     vbox.add_widget(w, stretch=1)
+
+
+
 
 elif wname == 'scrollarea':
     w = Widgets.ScrollArea()
