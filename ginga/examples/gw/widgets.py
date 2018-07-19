@@ -201,14 +201,32 @@ elif wname == 'splitter':
     w = Widgets.Splitter(orientation='horizontal')
     w.set_limits('600px','800px')
     w.add_split('horizontal')
-    #w.add_widget(Widgets.Label('Content of Pane 1'))
 
-    v = Widgets.Button("Press me")
-    v.add_callback('activated', lambda v: logger.info("button was clicked"))
+    #w.add_widget(Widgets.Label('Content of Pane 1'))
+    v = Widgets.VBox()
+
+    #Add Widgetss in here with the variable set to x
+    x = Widgets.Menubar()
+    menu = x.add_name('Menu 1')
+    menu.add_name('Larry').add_callback('activated',
+                                        lambda *args: print("chose Larry"))
+    menu.add_name('Curly').add_callback('activated',
+                                        lambda *args: logger.info("chose Curly"))
+    menu.add_name('Moe').add_callback('activated',
+                                      lambda *args: logger.info("chose Moe"))
+    #vbox.add_widget(x)
+    menu = x.add_name('Menu 2')
+    menu.add_name('Larry').add_callback('activated',
+                                        lambda *args: print("chose Larry"))
+    menu.add_name('Curly').add_callback('activated',
+                                        lambda *args: logger.info("chose Curly"))
+    menu.add_name('Moe').add_callback('activated',
+                                      lambda *args: logger.info("chose Moe"))
+
+    v.add_widget(x)
     w.add_widget(v)
 
     w.add_widget(Widgets.Label('Content of Pane 2'))
-
     #v = Widgets.Slider(orientation='horizontal', buttons = 'false')
     #v.set_limits(-10, 10,incr_value=1)
     #v.set_value(4)
@@ -227,6 +245,7 @@ elif wname == 'splitter':
     v.set_value(4)
     #w.add_widget(vbox.add_widget(v, stretch=1))
     w.add_widget(v)
+
     vbox.add_widget(w, stretch=1)
 
 

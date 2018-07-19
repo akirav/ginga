@@ -243,6 +243,7 @@ class TextEntry(WidgetBase):
 class TextEntrySet(WidgetBase):
 
     html_template = '''
+    <div>
         <span class="%(classes)s" style="%(styles)s">
         <input id=%(id)s type="text" size=%(size)d name="%(id)s"
            class="%(classes)s" style="%(styles)s"
@@ -253,6 +254,7 @@ class TextEntrySet(WidgetBase):
             onclick="ginga_app.widget_handler('activate', '%(id)s',
               document.getElementById('%(id)s').value)" value="Set"/>
         </span>
+        </div>
         '''
 
     def __init__(self, text='', editable=True):
@@ -698,7 +700,7 @@ class ScrollBar(WidgetBase):
                                          parseInt(event.currentValue));
             });
         });
-    </script>
+    </script >
     '''
 
     def __init__(self, orientation='horizontal',buttons='true'):
@@ -831,6 +833,7 @@ class ToggleButton(WidgetBase):
 class RadioButton(WidgetBase):
 
     html_template = '''
+
     <span class="%(classes)s" style="%(styles)s">
     <input id=%(id)s name="%(group)s" type="radio"
          class="%(classes)s"
@@ -838,6 +841,7 @@ class RadioButton(WidgetBase):
                 document.getElementById('%(id)s').value)" %(checked)s
          value="true">%(text)s
     </span>
+
     '''
     group_cnt = 0
 
@@ -883,6 +887,7 @@ class RadioButton(WidgetBase):
         if self.value:
             d['checked'] = 'checked'
 
+        print self.html_template % d  # noqa
         return self.html_template % d  # noqa
 
 
@@ -972,7 +977,7 @@ class ProgressBar(WidgetBase):
                     $(elt).jqxProgressBar('val', msg.value);
             });
         });
-    </script>
+    </script >
     """
 
     def __init__(self, orientation='horizontal'):
@@ -1015,7 +1020,7 @@ setTimeout(function() {
         $('#%(id)s').fadeOut();
  }, %(duration)s);
 });
-    </script>
+    </script >
     '''
 
 
@@ -1107,7 +1112,7 @@ class TreeView(WidgetBase):
                     $(elt).jqxTreeGrid("setColumnProperty", msg.dataField, msg.property, msg.width);
             });
         });
-    </script>
+    </script >
     """
 
     def __init__(self, auto_expand=False, sortable=False, selection='single',
@@ -1395,7 +1400,7 @@ class Canvas(WidgetBase):
     <script type="text/javascript">
         ginga_initialize_canvas(document.getElementById("%(id)s"), "%(id)s",
                                   ginga_app);
-    </script>
+    </script >
 '''  # noqa
 
     def __init__(self, width=600, height=600):
@@ -1609,7 +1614,7 @@ class Expander(ContainerBase):
              $("#%(id)s").jqxExpander({ width: '%(width)s',
                                         expanded: false });
         });
-    </script>
+    </script >
     """
 
     def __init__(self, title=''):
@@ -1657,7 +1662,7 @@ class TabWidget(ContainerBase):
                     $(elt).tabs('option', 'active', msg.index);
             });
         });
-    </script>
+    </script >
     """
 
     def __init__(self, tabpos='top', reorderable=False, detachable=True,
@@ -1772,7 +1777,7 @@ class MDIWidget(ContainerBase):
             $('#%(id)s').jqxDocking({ windowsMode: { %(winmode)s } });
             %(collapse)s
 	});
-	</script>
+	</script >
     '''
 
 	def __init__(self):
@@ -1832,7 +1837,7 @@ class ScrollArea(ContainerBase):
         $(document).ready(function () {
              $("#%(id)s").jqxPanel({ width: '%(width)s', height: '%(height)s' });
         });
-    </script>
+    </script >
     """
 
     def __init__(self):
@@ -1997,6 +2002,7 @@ class Splitter(ContainerBase):
 
             #The current sequence is a child
             else:
+                #og
                 testpanel2.append(test[childcount].render())
                 childcount += 1
             #Checks if there is a 0 in incount
@@ -2046,9 +2052,9 @@ class Splitter(ContainerBase):
 
         #Splits the html template whenever script is found
         b = a.split("script ")
-        #print 'Size of b: ' + str(len(b))
+        print 'Size of b: ' + str(len(b))
 
-        #If there are more than one <script> </script> pair
+        #If there are more than one <script > </script > pair
         if len(b) > 3:
             #for i, l in enumerate(b):
                     #print str(i) +'\n'+ l + '\n--------------------------------------------------'
@@ -2060,19 +2066,20 @@ class Splitter(ContainerBase):
             f = ''
             #Split up html and the JavaScript
             for i, l in enumerate(b):
-                #Get all of the HTML
-                if i%2 == 0:
-                    print 'even ' + str(i)
-                    e.append(b[i])
-
+                if i == len(b) - 2 and 0 != len(b) % 2:
+                    #print 'last odd: ' + str(i)
+                    f = b[i]
                 #Get the last script file which is the script for the splitter
                 elif i == len(b) - 2:
-                    print 'last odd: ' + str(i)
+                    #print 'last even: ' + str(i)
                     f = b[i]
-
+                #Should never go into this case
+                elif i%2 == 0:
+                    #print 'even ' + str(i)
+                    e.append(b[i])
                 #Get all of the script
                 else:
-                    print 'odd ' + str(i)
+                    #print 'odd ' + str(i)
                     c.append(b[i])
 
 
@@ -2113,12 +2120,12 @@ class Splitter(ContainerBase):
             #print html
 
             #Combination of Styles
-            script = '<script type="text/javascript">\n' + f2 + c4 + '</script>'
+            script = '<script type="text/javascript">\n' + f2 + c4 + '</script >'
             html_total = html + script
-            print html_total
+            #print html_total
             return html_total
 
-        print 'script'.join(b)
+        #print 'script'.join(b)
         return 'script '.join(b)
 
 
@@ -2333,7 +2340,7 @@ class Menu(ContainerBase):
                     $(elt).jqxMenu('open', left + msg.x, top + msg.y);
             });
         });
-    </script>
+    </script >
     """
 
     def __init__(self):
@@ -2410,7 +2417,7 @@ class Menubar(ContainerBase):
               ginga_app.widget_handler('activate', w_id, 'clicked');
             });
         });
-    </script>
+    </script >
     """
 
     def __init__(self):
@@ -2454,9 +2461,9 @@ class WebView(WidgetBase):
     <div id = '%(id)s' class = "%(classes)s" style="%(styles)s">
     <button onclick="Browseropen()">Click to open Browser</button>
     </div>
-    <script>
+    <script >
     function Browseropen(){window.open("%(link)s");}
-    </script>
+    </script >
     '''
 
     def __init__(self):
@@ -2499,13 +2506,13 @@ class TopLevel(ContainerBase):
 
     <!-- For Ginga -->
     <link rel="stylesheet" href="/js/ginga_pg.css" type="text/css" />
-    <script type="text/javascript" src="/js/ginga_pg.js"></script>
+    <script type="text/javascript" src="/js/ginga_pg.js"></script >
     <script type="text/javascript">
         var wid = "%(wid)s";
         var url = "%(url)s";
         var ws_url = "ws://" + window.location.host + "/app/socket?wid=%(wid)s";
         var ginga_app = ginga_make_application(ws_url, %(debug)s);
-    </script>
+    </script >
 
 <div id=%(id)s>%(content)s</div>
 </body>
@@ -2615,35 +2622,35 @@ class Application(Callback.Callbacks):
 
     script_decls = {
         'hammer': '''
-    <script type="text/javascript" src="/js/hammer.js"></script>
+    <script type="text/javascript" src="/js/hammer.js"></script >
     ''',
 
         'jquery': '''
     <!-- jQuery foundation -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
-    <script src="//code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="//code.jquery.com/jquery-1.12.4.js"></script >
+    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script >
     ''',
 
         'jqx': '''
     <!-- For jQWidgets -->
     <link rel="stylesheet" href="/js/jqwidgets/styles/jqx.base.css" type="text/css" />
-    <script type="text/javascript" src="/js/jqwidgets/jqxcore.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxwindow.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxdocking.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxdata.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxbuttons.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxscrollbar.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxsplitter.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxtabs.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxpanel.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxexpander.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxprogressbar.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxmenu.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxtoolbar.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxdatatable.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxtreegrid.js"></script>
-    <script type="text/javascript" src="/js/jqwidgets/jqxslider.js"></script>
+    <script type="text/javascript" src="/js/jqwidgets/jqxcore.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxwindow.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxdocking.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxdata.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxbuttons.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxscrollbar.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxsplitter.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxtabs.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxpanel.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxexpander.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxprogressbar.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxmenu.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxtoolbar.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxdatatable.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxtreegrid.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxslider.js"></script >
     ''',
     }
 
@@ -2916,7 +2923,7 @@ class Dialog(ContainerBase):
             });
 
         });
-    </script>
+    </script >
     """
 
     def __init__(self, title='', flags=None, buttons=[],
