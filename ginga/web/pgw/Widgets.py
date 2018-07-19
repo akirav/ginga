@@ -437,10 +437,11 @@ class Label(WidgetBase):
 class Button(WidgetBase):
 
     html_template = '''
+    <div>
         <input id=%(id)s type="button"
             class="%(classes)s" style="%(styles)s" %(disabled)s
             onclick="ginga_app.widget_handler('activate', '%(id)s', 'clicked')"
-            value="%(text)s">
+            value="%(text)s"> </div>
             '''
 
     def __init__(self, text=''):
@@ -1565,10 +1566,12 @@ class VBox(Box):
 class Frame(ContainerBase):
 
     html_template = '''
+    <div>
     <fieldset id=%(id)s class="%(classes)s" style="%(styles)s">
       %(legend)s
       %(content)s
     </fieldset>
+    </div>
     '''
 
     def __init__(self, title=None):
@@ -2054,7 +2057,7 @@ class Splitter(ContainerBase):
             i = 0
             c = []
             e = []
-
+            f = ''
             #Split up html and the JavaScript
             for i, l in enumerate(b):
                 #Get all of the HTML
@@ -2099,15 +2102,15 @@ class Splitter(ContainerBase):
                     e2.append(e[i][1:-1])
                 else:
                     e2.append (e[i][:-1])
+
             #for E in e: print E + '\n-------------'
             #print '-------------------------------------------------'
             #for E in e2: print E + '\n-------------'
             #print '-------------------------------------------------'
 
+            #List -> String of all the html components
             html = '\n'.join(e2)
             #print html
-
-
 
             #Combination of Styles
             script = '<script type="text/javascript">\n' + f2 + c4 + '</script>'
@@ -2115,7 +2118,7 @@ class Splitter(ContainerBase):
             print html_total
             return html_total
 
-        #print 'script'.join(b)
+        print 'script'.join(b)
         return 'script '.join(b)
 
 

@@ -201,12 +201,11 @@ elif wname == 'splitter':
     w = Widgets.Splitter(orientation='horizontal')
     w.set_limits('600px','800px')
     w.add_split('horizontal')
-    w.add_widget(Widgets.Label('Content of Pane 1'))
+    #w.add_widget(Widgets.Label('Content of Pane 1'))
 
-    #v = Widgets.Slider(orientation='vertical', buttons = 'false')
-    #v.set_limits(-10, 10,incr_value=1)
-    #v.set_value(4)
-    #w.add_widget(v)
+    v = Widgets.Button("Press me")
+    v.add_callback('activated', lambda v: logger.info("button was clicked"))
+    w.add_widget(v)
 
     w.add_widget(Widgets.Label('Content of Pane 2'))
 
@@ -221,15 +220,13 @@ elif wname == 'splitter':
     w.add_split('horizontal')
     w.add_widget(Widgets.Label('Content of Pane 4'))
     w.add_widget(Widgets.Label('Content of Pane 5'))
-    w.add_widget(Widgets.Label('Content of Pane 6'))
+    #w.add_widget(Widgets.Label('Content of Pane 6'))
 
-    #v = Widgets.Slider(orientation='vertical', buttons = 'false')
-    #v.set_limits(-10, 10,incr_value=1)
-    #v.set_value(4)
-    #w.add_widget(v)
-
-
-    #Add widget/child components in here
+    v = Widgets.Slider(orientation='vertical', buttons = 'false')
+    v.set_limits(-10, 10,incr_value=1)
+    v.set_value(4)
+    #w.add_widget(vbox.add_widget(v, stretch=1))
+    w.add_widget(v)
     vbox.add_widget(w, stretch=1)
 
 
