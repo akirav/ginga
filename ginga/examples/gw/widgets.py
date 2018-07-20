@@ -225,7 +225,7 @@ elif wname == 'splitter':
 
 
     v.add_widget(x)
-    w.add_widget(x)
+    w.add_widget(v)
 
     w.add_widget(Widgets.Label('Content of Pane 2'))
     #v = Widgets.Slider(orientation='horizontal', buttons = 'false')
@@ -248,8 +248,6 @@ elif wname == 'splitter':
     w.add_widget(v)
 
     vbox.add_widget(w, stretch=1)
-
-
 
 
 elif wname == 'scrollarea':
@@ -309,6 +307,14 @@ elif wname == 'gridbox':
     w.add_widget(Widgets.Button('Test Button2'), 3, 1)
     vbox.add_widget(w, stretch=1)
     #
+
+elif wname == 'gridbox2':
+    w = Widgets.GridBox2(rows=2, columns=2)
+    w.add_widget(Widgets.Label('Content of Grid Area 1'), 0, 0)
+    w.add_widget(Widgets.Label('Content of Grid Area 2'), 0, 1)
+    w.add_widget(Widgets.Label('Content of Grid Area 3'), 1, 0)
+    w.add_widget(Widgets.Label('Content of Grid Area 4'), 1, 1)
+    vbox.add_widget(w, stretch=1)
 
 elif wname == 'menubar':
     w = Widgets.Menubar()
