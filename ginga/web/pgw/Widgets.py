@@ -305,10 +305,12 @@ class TextEntrySet(WidgetBase):
 class TextArea(WidgetBase):
 
     html_template = '''
+        <div>
         <textarea id=%(id)s name="%(id)s"
            class="%(classes)s" style="%(styles)s" %(disabled)s
            %(editable)s onchange="ginga_app.widget_handler('activate', '%(id)s',
            document.getElementById('%(id)s').value)">%(text)s</textarea>
+           </div>
            '''
 
     def __init__(self, wrap=False, editable=False):
@@ -2048,6 +2050,9 @@ class Splitter(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        print d
+        print '---------------'
+        print self.html_template3
         a =  self.html_template3 % d
 
         #Splits the html template whenever script is found
@@ -2122,7 +2127,9 @@ class Splitter(ContainerBase):
             #Combination of Styles
             script = '<script type="text/javascript">\n' + f2 + c4 + '</script >'
             html_total = html + script
-            #print html_total
+            # print '----------------------In Splitter---------------------------'
+            # print html_total
+            # print '----------------------End Splitter---------------------------'
             return html_total
 
         #print 'script'.join(b)
@@ -3005,7 +3012,9 @@ class Dialog(ContainerBase):
                  content=self.body.render(),
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
-
+        print '-----------------In Dialog----------------------'
+        print self.html_template % d
+        print '-----------------End Dialog----------------------'
         return self.html_template % d
 
 # class SaveDialog(QtGui.QFileDialog):
