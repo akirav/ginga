@@ -206,14 +206,26 @@ elif wname == 'splitter':
     v = Widgets.VBox()
 
     #Add Widgetss in here with the variable set to x
-    x = Widgets.TextArea(editable=True)
-    x.set_text("Hello, World!")
-    # x = Widgets.StatusBar()
-    # x.set_message("Hello, World! is my status")
+    x = Widgets.Menubar()
+    menu = x.add_name('Menu 1')
+    menu.add_name('Larry').add_callback('activated',
+                                        lambda *args: print("chose Larry"))
+    menu.add_name('Curly').add_callback('activated',
+                                        lambda *args: logger.info("chose Curly"))
+    menu.add_name('Moe').add_callback('activated',
+                                      lambda *args: logger.info("chose Moe"))
+    #vbox.add_widget(x)
+    menu = x.add_name('Menu 2')
+    menu.add_name('Larry').add_callback('activated',
+                                        lambda *args: print("chose Larry"))
+    menu.add_name('Curly').add_callback('activated',
+                                        lambda *args: logger.info("chose Curly"))
+    menu.add_name('Moe').add_callback('activated',
+                                      lambda *args: logger.info("chose Moe"))
 
 
     v.add_widget(x)
-    w.add_widget(v)
+    w.add_widget(x)
 
     w.add_widget(Widgets.Label('Content of Pane 2'))
     #v = Widgets.Slider(orientation='horizontal', buttons = 'false')

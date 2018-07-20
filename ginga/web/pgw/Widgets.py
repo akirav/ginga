@@ -323,7 +323,7 @@ class TextArea(WidgetBase):
         self.font = default_font
 
         # is this properly a css style?
-        self.add_css_styles([('width', '100%')])
+        self.add_css_styles([('width', '100%%')])
 
     def _cb_redirect(self, event):
         self.text = event.value
@@ -377,6 +377,7 @@ class TextArea(WidgetBase):
             d['disabled'] = 'disabled'
         if not self.editable:
             d['editable'] = 'readOnly'
+
         return self.html_template % d  # noqa
 
 
@@ -1004,9 +1005,9 @@ class ProgressBar(WidgetBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
         if self.orientation == 'vertical':
-            d['width'], d['height'] = self.thickness, "'100%'"
+            d['width'], d['height'] = self.thickness, "'100%%'"
         else:
-            d['width'], d['height'] = "'100%'", self.thickness
+            d['width'], d['height'] = "'100%%'", self.thickness
 
         #print self.html_template % d
         return self.html_template % d
@@ -2050,9 +2051,7 @@ class Splitter(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-        print d
-        print '---------------'
-        print self.html_template3
+
         a =  self.html_template3 % d
 
         #Splits the html template whenever script is found
@@ -2457,7 +2456,7 @@ class Menubar(ContainerBase):
             for child in self.get_children()]
         disabled = str(not self.enabled).lower()
         d = dict(id=self.id, content='\n'.join(content), disabled=disabled,
-                 width='100%', height=self.thickness,
+                 width='100%%', height=self.thickness,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
