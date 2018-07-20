@@ -308,14 +308,6 @@ elif wname == 'gridbox':
     vbox.add_widget(w, stretch=1)
     #
 
-elif wname == 'gridbox2':
-    w = Widgets.GridBox2(rows=2, columns=2)
-    w.add_widget(Widgets.Label('Content of Grid Area 1'), 0, 0)
-    w.add_widget(Widgets.Label('Content of Grid Area 2'), 0, 1)
-    w.add_widget(Widgets.Label('Content of Grid Area 3'), 1, 0)
-    w.add_widget(Widgets.Label('Content of Grid Area 4'), 1, 1)
-    vbox.add_widget(w, stretch=1)
-
 elif wname == 'menubar':
     w = Widgets.Menubar()
     menu = w.add_name('Menu 1')

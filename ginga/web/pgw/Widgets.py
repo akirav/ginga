@@ -24,7 +24,7 @@ __all__ = ['WidgetError', 'WidgetBase', 'TextEntry', 'TextEntrySet',
            'RadioButton', 'Image', 'ProgressBar', 'StatusBar', 'TreeView',
            'Canvas', 'ContainerBase', 'Box', 'HBox', 'VBox', 'Frame',
            'Expander', 'TabWidget', 'StackWidget', 'MDIWidget', 'ScrollArea',
-           'Splitter', 'GridBox', 'GridBox2', 'ToolbarAction', 'Toolbar', 'MenuAction',
+           'Splitter', 'GridBox', 'ToolbarAction', 'Toolbar', 'MenuAction',
            'Menu', 'Menubar', 'WebView',
 	   'TopLevel', 'Application', 'Dialog',
            'name_mangle', 'make_widget', 'hadjust', 'build_info', 'wrap',
@@ -2152,6 +2152,7 @@ class GridBox(ContainerBase):
         self.row_spacing = 0
         self.col_spacing = 0
         self.tbl = {}
+        self.countrender = 0
 
     def resize_grid(self, rows, columns):
         self.num_rows = rows
@@ -2175,11 +2176,15 @@ class GridBox(ContainerBase):
 	self.tbl[(row, col)] = child
 
         app = self.get_app()
+        #app.do_operation('update_html', id=self.id,
+                         #value=self.render_body())
         app.do_operation('update_html', id=self.id,
-                         value=self.render_body())
+                         value='')
         self.make_callback('widget-added', child)
 
     def render_body(self):
+        self.countrender += 1
+        print self.countrender
         res = []
         for i in range(self.num_rows):
             res.append("  <tr>")
@@ -2202,72 +2207,6 @@ class GridBox(ContainerBase):
 
         return self.html_template % d
 
-class GridBox2(ContainerBase):
-
-    html_template = '''
-    <table id=%(id)s class="%(classes)s" style="%(styles)s">
-    %(content)s
-    </table>
-    '''
-
-    def __init__(self, rows=1, columns=1):
-        super(GridBox2, self).__init__()
-        self.widget = None
-        self.num_rows = rows
-        self.num_cols = columns
-        self.row_spacing = 0
-        self.col_spacing = 0
-        self.tbl = {}
-
-    def resize_grid(self, rows, columns):
-        self.num_rows = rows
-        self.num_cols = columns
-
-    def set_row_spacing(self, val):
-        self.row_spacing = val
-
-    def set_spacing(self, val):
-        self.set_row_spacing(val)
-        self.set_column_spacing(val)
-
-    def set_column_spacing(self, val):
-        self.col_spacing = val
-
-    def add_widget(self, child, row, col, stretch=0):
-        self.add_ref(child)
-        self.num_rows = max(self.num_rows, row + 1)
-        self.num_cols = max(self.num_cols, col + 1)
-        print 'self_rows: ' + str(self.num_rows) + ' self_col ' + str(self.num_cols)
-	self.tbl[(row, col)] = child
-
-        app = self.get_app()
-        app.do_operation('update_html', id=self.id,
-                         value=self.render_body())
-        self.make_callback('widget-added', child)
-
-    def render_body(self):
-        res = []
-        for i in range(self.num_rows):
-            res.append("  <tr>")
-            for j in range(self.num_cols):
-                res.append("  <td>")
-                key = (i, j)
-                if key in self.tbl:
-                    res.append(self.tbl[key].render())
-                else:
-                    res.append("")
-                res.append("  </td>")
-            res.append("  </tr>")
-        return '\n'.join(res)
-
-    def render(self):
-        d = dict(id=self.id,
-                 classes=self.get_css_classes(fmt='str'),
-                 styles=self.get_css_styles(fmt='str'),
-                 content=self.render_body())
-
-        print self.html_template % d
-        return self.html_template % d
 
 class ToolbarAction(WidgetBase):
     def __init__(self):
