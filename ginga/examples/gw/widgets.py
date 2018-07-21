@@ -300,13 +300,13 @@ elif wname == 'gridbox':
     w.add_widget(Widgets.Label('Content of Grid Area 3'), 1, 0)
     w.add_widget(Widgets.Label('Content of Grid Area 4'), 1, 1)
 
-    #Added for Testing Purposes
-    w.add_widget(Widgets.Label('Content of Grid Area 5'), 2, 0)
-    w.add_widget(Widgets.Label('Content of Grid Area 6'), 2, 1)
-    w.add_widget(Widgets.Button('Test Button'), 3, 0)
-    w.add_widget(Widgets.Button('Test Button2'), 3, 1)
+    v = Widgets.Button("Add Rows")
+    v.add_callback('activated', lambda v: w.add_widget(Widgets.Label('Content of Grid Area %s' % (w.get_num_rows() + w.get_num_rows() + 1 )), w.get_num_rows(), 0,dynamic=1))
+
+    logger.info(w.get_num_rows())
     vbox.add_widget(w, stretch=1)
-    #
+    vbox.add_widget(v)
+
 
 elif wname == 'menubar':
     w = Widgets.Menubar()

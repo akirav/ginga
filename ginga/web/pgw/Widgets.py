@@ -2168,7 +2168,13 @@ class GridBox(ContainerBase):
     def set_column_spacing(self, val):
         self.col_spacing = val
 
-    def add_widget(self, child, row, col, stretch=0):
+    def get_num_rows(self):
+        return self.num_rows
+
+    def get_num_cols(self):
+        return self.num_cols
+
+    def add_widget(self, child, row, col, stretch=0, dynamic=None):
         self.add_ref(child)
         self.num_rows = max(self.num_rows, row + 1)
         self.num_cols = max(self.num_cols, col + 1)
@@ -2176,9 +2182,11 @@ class GridBox(ContainerBase):
 	self.tbl[(row, col)] = child
 
         app = self.get_app()
-        #app.do_operation('update_html', id=self.id,
-                         #value=self.render_body())
-        app.do_operation('update_html', id=self.id,
+        if dynamic:
+            app.do_operation('update_html', id=self.id,
+                             value=self.render_body())
+        else:
+            app.do_operation('update_html', id=self.id,
                          value='')
         self.make_callback('widget-added', child)
 
@@ -2205,6 +2213,7 @@ class GridBox(ContainerBase):
                  styles=self.get_css_styles(fmt='str'),
                  content=self.render_body())
 
+        print self.html_template % d
         return self.html_template % d
 
 
@@ -3016,9 +3025,9 @@ class Dialog(ContainerBase):
                  content=self.body.render(),
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
-        print '-----------------In Dialog----------------------'
-        print self.html_template % d
-        print '-----------------End Dialog----------------------'
+        # print '-----------------In Dialog----------------------'
+        # print self.html_template % d
+        # print '-----------------End Dialog----------------------'
         return self.html_template % d
 
 # class SaveDialog(QtGui.QFileDialog):
