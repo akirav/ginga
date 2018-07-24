@@ -2290,6 +2290,7 @@ class Toolbar(ContainerBase):
         pass
 
     def render(self):
+        print self.widget.render()
         return self.widget.render()
 
 
@@ -2474,6 +2475,7 @@ class Menubar(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        print self.html_template % d
         return self.html_template % d
 
 class WebView(WidgetBase):

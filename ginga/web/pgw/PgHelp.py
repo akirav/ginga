@@ -251,18 +251,19 @@ def get_native_image(img_path,format):
 #Added
 
 def get_icon(iconpath, size=None, format='png'):
-    image = io_rgb.PILimage.open(iconpath)
-    if size is not None:
-        wd, ht = size
-    else:
-        wd, ht = 24, 24
-    image = image.resize((wd, ht))
-
-    img_buf = BytesIO()
-    image.save(img_buf, format=format)
-
-    icon = get_image_src_from_buffer(img_buf.getvalue(), imgtype=format)
-    return icon
+    # image = io_rgb.PILimage.open(iconpath)
+    # if size is not None:
+    #     wd, ht = size
+    # else:
+    #     wd, ht = 24, 24
+    # image = image.resize((wd, ht))
+    #
+    # img_buf = BytesIO()
+    # image.save(img_buf, format=format)
+    #
+    # icon = get_image_src_from_buffer(img_buf.getvalue(), imgtype=format)
+    # return icon
+    return iconpath
 
 
 

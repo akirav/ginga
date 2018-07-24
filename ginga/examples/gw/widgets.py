@@ -331,12 +331,18 @@ elif wname == 'menubar':
 elif wname == 'toolbar':
     w = Widgets.Toolbar()
     menu = w.add_menu('Menu Type 1', mtype='tool')
+    # menu.add_name('Larry').add_callback('activated',
+    #                                     lambda w: logger.info("chose Larry"))
+    # menu.add_name('Curly').add_callback('activated',
+    #                                     lambda w: logger.info("chose Curly"))
+    # menu.add_name('Moe').add_callback('activated',
+    #                                   lambda w: logger.info("chose Moe"))
     menu.add_name('Larry').add_callback('activated',
-                                        lambda w: logger.info("chose Larry"))
+                                        lambda *args: logger.info("chose Larry"))
     menu.add_name('Curly').add_callback('activated',
-                                        lambda w: logger.info("chose Curly"))
+                                        lambda *args: logger.info("chose Curly"))
     menu.add_name('Moe').add_callback('activated',
-                                      lambda w: logger.info("chose Moe"))
+                                      lambda *args: logger.info("chose Moe"))
     menu = w.add_menu('Menu Type 2', mtype='mbar')
     menu.add_name('Frank')
     menu.add_name('Dean')
