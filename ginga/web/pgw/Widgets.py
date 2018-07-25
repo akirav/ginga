@@ -229,22 +229,20 @@ class TextEntry(WidgetBase):
                              ('font-size', font.point_size),
                              ('font-style', font.style),
                              ('font-weight', font.weight)])
-        print self.font
+        #print self.font
 
     def set_length(self, numchars):
         # this is only supposed to set the visible length
         self.length = numchars
 
     def render(self):
-        # TODO: render font
         d = dict(id=self.id, text=self.text, disabled='', size=self.length,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
-                 #styles='font-family: courier')
         if not self.enabled:
             d['disabled'] = 'disabled'
-        print 'Styles: ' + d['styles']
-        print self.html_template % d  # noqa
+        # print 'Styles: ' + d['styles']
+        # print self.html_template % d  # noqa
         return self.html_template % d  # noqa
 
 
@@ -255,7 +253,7 @@ class TextEntrySet(WidgetBase):
         <span class="%(classes)s" style="%(styles)s">
         <input id=%(id)s type="text" size=%(size)d name="%(id)s"
            class="%(classes)s" style="%(styles)s"
-           %(disabled)s onchange="ginga_app.widget_handler('activate', '%(id)s',
+           %(disabled)s %(editable)s onchange="ginga_app.widget_handler('activate', '%(id)s',
               document.getElementById('%(id)s').value)" value="%(text)s"/>
         <input type="button" %(disabled)s
             class="%(classes)s" style="%(styles)s"
@@ -294,6 +292,10 @@ class TextEntrySet(WidgetBase):
         if isinstance(font, six.string_types):
             font = self.get_font(font, size)
         self.font = font
+        self.add_css_styles([('font-family', font.family),
+                             ('font-size', font.point_size),
+                             ('font-style', font.style),
+                             ('font-weight', font.weight)])
 
 
     def set_editable(self, tf):
@@ -304,10 +306,12 @@ class TextEntrySet(WidgetBase):
         self.length = numchars
 
     def render(self):
-        # TODO: render font, editable
-        d = dict(id=self.id, text=self.text, disabled='', size=self.length,
+        d = dict(id=self.id, text=self.text, disabled='', size=self.length, editable = '',
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
+        if not self.editable:
+            d['editable'] = 'readOnly'
+        #print self.html_template % d  # noqa
         return self.html_template % d  # noqa
 
 
@@ -373,6 +377,10 @@ class TextArea(WidgetBase):
         if isinstance(font, six.string_types):
             font = self.get_font(font, size)
         self.font = font
+        self.add_css_styles([('font-family', font.family),
+                             ('font-size', font.point_size),
+                             ('font-style', font.style),
+                             ('font-weight', font.weight)])
 
     def set_wrap(self, tf):
         self.wrap = tf

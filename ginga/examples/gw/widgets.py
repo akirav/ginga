@@ -59,7 +59,10 @@ dia = None
 
 if wname == 'label':
     w = Widgets.Label("Hello World label")
+
     w.set_font("courier")
+    #w.set_font("verdana")
+
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'button':
@@ -71,17 +74,28 @@ elif wname == 'button':
 elif wname == 'textentry':
     w = Widgets.TextEntry()
     w.set_text("Hello, World!")
-    w.set_font("verdana")
+
+    w.set_font("courier")
+    #w.set_font("verdana")
+
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'textentryset':
-    w = Widgets.TextEntrySet()
+    w = Widgets.TextEntrySet(editable=True)
+    w.set_font("courier")
+
+    #w.set_font("verdana")
     w.set_text("Hello, World!")
+
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'textarea':
     w = Widgets.TextArea(editable=True)
     w.set_text("Hello, World!")
+
+    #w.set_font("courier")
+    w.set_font("verdana")
+
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'checkbox':
