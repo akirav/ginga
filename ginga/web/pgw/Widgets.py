@@ -225,6 +225,11 @@ class TextEntry(WidgetBase):
         if isinstance(font, six.string_types):
             font = self.get_font(font, size)
         self.font = font
+        self.add_css_styles([('font-family', font.family),
+                             ('font-size', font.point_size),
+                             ('font-style', font.style),
+                             ('font-weight', font.weight)])
+        print self.font
 
     def set_length(self, numchars):
         # this is only supposed to set the visible length
@@ -235,8 +240,11 @@ class TextEntry(WidgetBase):
         d = dict(id=self.id, text=self.text, disabled='', size=self.length,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
+                 #styles='font-family: courier')
         if not self.enabled:
             d['disabled'] = 'disabled'
+        print 'Styles: ' + d['styles']
+        print self.html_template % d  # noqa
         return self.html_template % d  # noqa
 
 
@@ -286,6 +294,7 @@ class TextEntrySet(WidgetBase):
         if isinstance(font, six.string_types):
             font = self.get_font(font, size)
         self.font = font
+
 
     def set_editable(self, tf):
         self.editable = tf
@@ -436,6 +445,7 @@ class Label(WidgetBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        print self.html_template % d
         return self.html_template % d
 
 
@@ -1702,7 +1712,7 @@ class TabWidget(ContainerBase):
         child = self.index_to_widget(self.index)
         self.make_callback('page-switch', child)
 
-    def add_widget(self, child, title=''):
+    def add_widget(self, child, title='',dynamic=None):
         self.add_ref(child)
         self.titles.append(title)
         # attach title to child
@@ -1714,6 +1724,8 @@ class TabWidget(ContainerBase):
         # re-rendering the HTML does not seem to process the CSS right
         #app.do_operation('reload_page', id=self.id)
         self.make_callback('widget-added', child)
+        if dynamic:
+            app.do_operation('update_html', id=self.id, value=self.render())
 
     def get_index(self):
         return self.index
@@ -1753,7 +1765,8 @@ class TabWidget(ContainerBase):
         res = ['''<div id="%s-%s"> %s </div>\n''' % (self.id, child.id,child.render())
         for child in self.get_children()]
         d['content'] = '\n'.join(res)
-        #print self.html_template % d
+        print self.html_template % d
+        print '----------------------------------------------------------------------------------'
         return self.html_template % d
 
 

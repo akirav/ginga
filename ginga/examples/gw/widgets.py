@@ -46,7 +46,7 @@ def popup_dialog(parent):
 logger = log.get_logger('test', log_stderr=True, level=20)
 
 app = Widgets.Application(logger=logger)
-app.script_imports.append('jqx')
+app.script_imports.append('jqx') #Causes error when trying to run other toolkits
 app.add_callback('shutdown', quit)
 top = app.make_window("Ginga Wrapped Widgets Example: %s" % (wname))
 top.add_callback('close', quit)
@@ -59,6 +59,7 @@ dia = None
 
 if wname == 'label':
     w = Widgets.Label("Hello World label")
+    w.set_font("courier")
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'button':
@@ -70,6 +71,7 @@ elif wname == 'button':
 elif wname == 'textentry':
     w = Widgets.TextEntry()
     w.set_text("Hello, World!")
+    w.set_font("verdana")
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'textentryset':
@@ -263,12 +265,15 @@ elif wname == 'tabwidget':
     w.add_widget(Widgets.Label('Content of Tab 2'), title='Tab 2')
     hbox = Widgets.HBox()
     sbox = Widgets.SpinBox(dtype=int)
-    sbox.set_limits(0, 1, incr_value=1)
+    sbox.set_limits(0, 2, incr_value=1)
     sbox.set_value(0)
     sbox.add_callback('value-changed', lambda sbx, val: w.set_index(val))
     hbox.add_widget(sbox)
     vbox.add_widget(w, stretch=1)
     vbox.add_widget(hbox, stretch=0)
+    v = Widgets.Button("Add Tab")
+    v.add_callback('activated', lambda v: w.add_widget(Widgets.Label('Content of Tab 1'), title='Tab 1', dynamic=1))
+    vbox.add_widget(v)
 
 elif wname == 'stackwidget':
     w = Widgets.StackWidget()
@@ -282,7 +287,9 @@ elif wname == 'stackwidget':
     sbox.add_callback('value-changed', lambda sbx, val: w.set_index(val))
     hbox.add_widget(sbox)
     vbox.add_widget(w, stretch=1)
+
     vbox.add_widget(hbox, stretch=0)
+
     print('check')
 
 elif wname == 'mdiwidget':
