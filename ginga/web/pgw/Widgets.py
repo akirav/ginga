@@ -152,6 +152,13 @@ class WidgetBase(Callback.Callbacks):
             list(filter(lambda t: t not in classes, new_classes))
         self.extdata.css_classes = classes
 
+    def remove_css_class(self):
+        classes = self.get_css_classes()
+        classes = classes[:-1]
+        print 'In remove_css_class'
+        print type(classes)
+        self.extdata.css_classes = classes
+
     def get_css_styles(self, fmt=None):
         styles = self.extdata.setdefault('inline_styles', [])
         if fmt == 'str':
@@ -401,7 +408,8 @@ class TextArea(WidgetBase):
 class Label(WidgetBase):
 
     html_template = '''
-    <div id=%(id)s class="%(classes)s" style="%(styles)s">%(text)s</div>
+    <div align="%(align)s" id=%(id)s class="%(classes)s" style="%(styles)s"
+    onclick="ginga_app.widget_handler('activate', '%(id)s', 'clicked')">%(text)s</div>
     '''
 
     def __init__(self, text='', halign='left', style='normal', menu=None):
@@ -426,6 +434,9 @@ class Label(WidgetBase):
         app = self.get_app()
         app.do_operation('update_label', id=self.id, value=text)
 
+    def _cb_redirect(self, event):
+        self.make_callback('activated')
+
     def set_font(self, font, size=10):
         if isinstance(font, six.string_types):
             font = self.get_font(font, size)
@@ -449,11 +460,11 @@ class Label(WidgetBase):
 
     def render(self):
         # TODO: render alignment, style, menu, clickable
-        d = dict(id=self.id, text=self.text,
+        d = dict(id=self.id, text=self.text, align = self.halign,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-        print self.html_template % d
+        #print self.html_template % d
         return self.html_template % d
 
 
@@ -1345,6 +1356,7 @@ class TreeView(WidgetBase):
 
     def highlight_path(self, path, onoff, font_color='green'):
         item = self._path_to_item(path)  # noqa
+        print item
         # TODO - Is there be a way to do this with CSS?
 
     def scroll_to_path(self, path):
@@ -1407,6 +1419,7 @@ class TreeView(WidgetBase):
                  sortable=json.dumps(self.sortable),
                  width=self.width,
                  selectionMode=self.selection)
+        print self.html_template % d
         return self.html_template % d
 
 
@@ -1698,8 +1711,10 @@ class TabWidget(ContainerBase):
         self.index = 0
         self.set_tab_position(tabpos)
         self.titles = []
-        self.add_css_classes(['ui-tabs'])
         self._tabs_visible = True
+        self.add_css_classes(['ui-tabs'])
+
+
 
         for name in ('page-switch', 'page-close', 'page-move', 'page-detach'):
             self.enable_callback(name)
@@ -1734,6 +1749,9 @@ class TabWidget(ContainerBase):
         self.make_callback('widget-added', child)
         if dynamic:
             app.do_operation('update_html', id=self.id, value=self.render())
+            print '-------------------------------In Dynamic------------------------------------------'
+            print self.render()
+            #app.do_operation('reload_page', id=self.id)
 
     def get_index(self):
         return self.index
@@ -1754,28 +1772,64 @@ class TabWidget(ContainerBase):
         """Returns child corresponding to `idx`"""
         return self.children[idx]
 
-    def render(self):
-        d = dict(id=self.id, pos=self.tabpos, tabs='',
-                 classes=self.get_css_classes(fmt='str'),
-                 styles=self.get_css_styles(fmt='str'))
+#Added
 
-        # draw tabs
-        res = ['''<ul class="ui-tabs-nav">\n''']
-        for child in self.get_children():
-             if self._tabs_visible:
-                 res.append('''<li> <a style=""  href="#%s-%s"> %s </a></li>\n''' % (
-                    self.id, child.id, child.extdata.tab_title))
-             else:
-                 res.append('''<li> <a style="display: none"  href="#%s-%s"> %s </a></li>\n''' % (
-                    self.id, child.id, child.extdata.tab_title))
-        res.append("</ul>\n")
-        d['tabs'] = '\n'.join(res)
+    def render_tabs(self):
+            res = ['''<ul class="ui-tabs-nav">\n''']
+            for child in self.get_children():
+                 if self._tabs_visible:
+                     res.append('''<li> <a style=""  href="#%s-%s"> %s </a></li>\n''' % (
+                        self.id, child.id, child.extdata.tab_title))
+                 else:
+                     res.append('''<li> <a style="display: none"  href="#%s-%s"> %s </a></li>\n''' % (
+                        self.id, child.id, child.extdata.tab_title))
+            res.append("</ul>\n")
+            return '\n'.join(res)
+
+    def render_content(self):
         res = ['''<div id="%s-%s"> %s </div>\n''' % (self.id, child.id,child.render())
         for child in self.get_children()]
-        d['content'] = '\n'.join(res)
+        return '\n'.join(res)
+
+    def render_both(self):
+        self.render_tabs()
+        self.render_content()
+
+#EndAdded
+
+    def render(self):
+        d = dict(id=self.id, pos=self.tabpos,
+                tabs=self.render_tabs(), content=self.render_content(),
+                 classes=self.get_css_classes(fmt='str'),
+                 styles=self.get_css_styles(fmt='str'))
+        print '-------------------------------In Render------------------------------------------'
         print self.html_template % d
-        print '----------------------------------------------------------------------------------'
+        print '--------------------------------Out Render----------------------------------------'
         return self.html_template % d
+
+    # def render(self):
+    #     d = dict(id=self.id, pos=self.tabpos, tabs='',
+    #              classes=self.get_css_classes(fmt='str'),
+    #              styles=self.get_css_styles(fmt='str'))
+    #
+    #     # draw tabs
+    #     res = ['''<ul class="ui-tabs-nav">\n''']
+    #     for child in self.get_children():
+    #          if self._tabs_visible:
+    #              res.append('''<li> <a style=""  href="#%s-%s"> %s </a></li>\n''' % (
+    #                 self.id, child.id, child.extdata.tab_title))
+    #          else:
+    #              res.append('''<li> <a style="display: none"  href="#%s-%s"> %s </a></li>\n''' % (
+    #                 self.id, child.id, child.extdata.tab_title))
+    #     res.append("</ul>\n")
+    #     d['tabs'] = '\n'.join(res)
+    #     res = ['''<div id="%s-%s"> %s </div>\n''' % (self.id, child.id,child.render())
+    #     for child in self.get_children()]
+    #     d['content'] = '\n'.join(res)
+    #
+    #     print self.html_template % d
+    #     print '----------------------------------------------------------------------------------'
+    #     return self.html_template % d
 
 
 class StackWidget(TabWidget):
@@ -1783,6 +1837,11 @@ class StackWidget(TabWidget):
         super(StackWidget, self).__init__(tabpos='top', reorderable=False,
                                           detachable=False, group=-1)
         self._tabs_visible = False
+        self.remove_css_class()
+        self.add_css_classes(['ui-stack'])
+        print self.get_css_classes()
+
+
 
 
 
@@ -1809,17 +1868,22 @@ class MDIWidget(ContainerBase):
 		self.titles = []
 
 
-	def add_widget(self, child, title=''):
+	def add_widget(self, child, title='', dynamic=None):
 		self.add_ref(child)
 		self.titles.append(title)
 		child.extdata.tab_title = title
 
 		app= self.get_app()
 		self.make_callback('widget-added', child)
+                if dynamic:
+                    app.do_operation('update_html', id=self.id, value=self.render())
 
+
+        def _cb_redirect(self, event):
+            self.make_callback('activated')
 	#def add_winmode()
 
-	#def _cb_redirect
+
 
 	def render(self):
             d = dict(id=self.id, classes=self.get_css_classes(fmt='str'),
@@ -2311,7 +2375,7 @@ class Toolbar(ContainerBase):
         pass
 
     def render(self):
-        print self.widget.render()
+        #print self.widget.render()
         return self.widget.render()
 
 
@@ -2671,6 +2735,8 @@ class Application(Callback.Callbacks):
         'jquery': '''
     <!-- jQuery foundation -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="/js/ginga_pg.css" type="text/css" />
+
     <script src="//code.jquery.com/jquery-1.12.4.js"></script >
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script >
     ''',

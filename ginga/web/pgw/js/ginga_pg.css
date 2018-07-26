@@ -77,4 +77,14 @@ canvas {
     margin: 3.5px;
 }
 
+.ui-stack.ui-tabs .ui-tabs-nav{
+  background: none !important;
+  border: none !important;
+}
+
+.ui-stack.ui-tabs .ui-tabs-nav li {
+  border: none !important;
+}
+
+
 /*END*/

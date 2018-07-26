@@ -58,12 +58,25 @@ vbox.set_spacing(1)
 dia = None
 
 if wname == 'label':
-    w = Widgets.Label("Hello World label")
+    w = Widgets.Label("Hello World left",halign='left')
+    w.add_callback('activated', lambda w: logger.info("Left was clicked"))
+
+    x = Widgets.Label("Hello World center",halign='center')
+    x.add_callback('activated', lambda x: logger.info("Center was clicked"))
+
+    y = Widgets.Label("Hello World right",halign='right')
+    y.add_callback('activated', lambda y: logger.info("Right was clicked"))
+
+    z = Widgets.Label("Hello World justify",halign='justify')
+    z.add_callback('activated', lambda z: logger.info("Justify was clicked"))
 
     w.set_font("courier")
     #w.set_font("verdana")
 
     vbox.add_widget(w, stretch=1)
+    vbox.add_widget(x, stretch=1)
+    vbox.add_widget(y, stretch=1)
+    vbox.add_widget(z, stretch=1)
 
 elif wname == 'button':
     w = Widgets.Button("Press me")
@@ -313,6 +326,9 @@ elif wname == 'mdiwidget':
     w.add_widget(Widgets.SpinBox(dtype=int), title='test3')
     w.add_widget(Widgets.CheckBox("Check me"), title='test4')
     vbox.add_widget(w, stretch=1)
+    v = Widgets.Button("Add Tab")
+    v.add_callback('activated', lambda v: w.add_widget(Widgets.Label('Content of MDI Area 1'),title='test1', dynamic=1))
+    vbox.add_widget(v)
 
 elif wname == 'gridbox':
     w = Widgets.GridBox(rows=2, columns=2)
