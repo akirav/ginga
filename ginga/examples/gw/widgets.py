@@ -219,10 +219,10 @@ elif wname == 'splitter':
     #       |  2  | 3   |
     #       |_____|_____|
     #
-    #       w = Widgets.Splitter(orientation='horizontal')
+    #       w = Widgets.Splitter(orientation='vertical')
     #       w.set_limits('600px','800px')
     #       w.add_widget(Widgets.Label('1'))
-    #       w.add_split('vertical')
+    #       w.add_split('horizontal')
     #       w.add_widget(Widgets.Label('2'))
     #       w.add_widget(Widgets.Label('3'))
     #
@@ -314,10 +314,7 @@ elif wname == 'stackwidget':
     sbox.add_callback('value-changed', lambda sbx, val: w.set_index(val))
     hbox.add_widget(sbox)
     vbox.add_widget(w, stretch=1)
-
     vbox.add_widget(hbox, stretch=0)
-
-    print('check')
 
 elif wname == 'mdiwidget':
     w = Widgets.MDIWidget()
@@ -326,8 +323,9 @@ elif wname == 'mdiwidget':
     w.add_widget(Widgets.SpinBox(dtype=int), title='test3')
     w.add_widget(Widgets.CheckBox("Check me"), title='test4')
     vbox.add_widget(w, stretch=1)
-    v = Widgets.Button("Add Tab")
-    v.add_callback('activated', lambda v: w.add_widget(Widgets.Label('Content of MDI Area 1'),title='test1', dynamic=1))
+
+    v = Widgets.Button("Add MDI")
+    v.add_callback('activated', lambda v: w.add_widget(Widgets.Label('Content of Tab 1'), title='Tab 1', dynamic=1))
     vbox.add_widget(v)
 
 elif wname == 'gridbox':
@@ -368,18 +366,13 @@ elif wname == 'menubar':
 elif wname == 'toolbar':
     w = Widgets.Toolbar()
     menu = w.add_menu('Menu Type 1', mtype='tool')
-    # menu.add_name('Larry').add_callback('activated',
-    #                                     lambda w: logger.info("chose Larry"))
-    # menu.add_name('Curly').add_callback('activated',
-    #                                     lambda w: logger.info("chose Curly"))
-    # menu.add_name('Moe').add_callback('activated',
-    #                                   lambda w: logger.info("chose Moe"))
     menu.add_name('Larry').add_callback('activated',
-                                        lambda *args: logger.info("chose Larry"))
+                                        lambda w: logger.info("chose Larry"))
     menu.add_name('Curly').add_callback('activated',
-                                        lambda *args: logger.info("chose Curly"))
+                                        lambda w: logger.info("chose Curly"))
     menu.add_name('Moe').add_callback('activated',
-                                      lambda *args: logger.info("chose Moe"))
+                                      lambda w: logger.info("chose Moe"))
+
     menu = w.add_menu('Menu Type 2', mtype='mbar')
     menu.add_name('Frank')
     menu.add_name('Dean')
@@ -390,6 +383,17 @@ elif wname == 'toolbar':
     w.add_action(None, iconpath=os.path.join(icondir, 'hand_48.png'))
     vbox.add_widget(w)
     vbox.add_widget(Widgets.Label("App content"), stretch=1)
+
+elif wname == 'toolbar2':
+    w = Widgets.Toolbar2()
+    #w.add_button('A', 'Test A').add_callback('activated', lambda w: logger.info("Please"))
+    #w.add_button('A', 'Test A')
+    w.add_separator()
+
+    w.add_button('B', 'Test B')
+    w.add_button('C', 'Test C')
+    w.add_callback('activated', lambda w: logger.info("Please"))
+    vbox.add_widget(w)
 
 elif wname == 'dialog':
     dia = Widgets.Dialog(title="Dialog Title",
@@ -413,10 +417,77 @@ elif wname == 'dialog':
     vbox.add_widget(hbox)
 
 elif wname == 'test':
-    w = Widgets.Splitter()
-    w.add_widget(Widgets.Label('Content of Pane 1'))
-    w.add_widget(Widgets.Label('Content of Pane 2'))
-    w.add_widget(Widgets.Label('Content of Pane 3'))
+
+    w = Widgets.Menubar()
+    menu = w.add_name('File')
+    menu.add_name('Quit').add_callback('activated',
+                                        lambda *args: print("Quit"))
+
+    menu = w.add_name('Plugins')
+
+    menu.add_name('Airmass Chart').add_callback('activated',
+                                         lambda *args: logger.info("chose Airmass Chart"))
+    menu.add_name('Control Panel').add_callback('activated',
+                                         lambda *args: logger.info("chose Control Panel"))
+    menu.add_name('Errors').add_callback('activated',
+                                       lambda *args: logger.info("chose Errors"))
+    menu.add_name('Log').add_callback('activated',
+                                       lambda *args: logger.info("chose Log"))
+    menu.add_name('Night Activity Chart').add_callback('activated',
+                                       lambda *args: logger.info("chose Night Activity Chart"))
+    menu.add_name('Proposal Chart').add_callback('activated',
+                                       lambda *args: logger.info("chose Proposals Chart"))
+    menu.add_name('Report').add_callback('activated',
+                                       lambda *args: logger.info("chose Report"))
+    menu.add_name('Schedule').add_callback('activated',
+                                       lambda *args: logger.info("chose Schedule"))
+    menu.add_name('Schedules Chart').add_callback('activated',
+                                       lambda *args: logger.info("chose Schedules Chart"))
+    menu.add_name('Semester Chart').add_callback('activated',
+                                       lambda *args: logger.info("chose Semester Chart"))
+    menu.add_name('Slew Chart').add_callback('activated',
+                                       lambda *args: logger.info("chose Semester Chart"))
+    vbox.add_widget(w)
+
+    w = Widgets.Splitter(orientation='horizontal')
+    width = '100%%'
+    height = 1000
+    w.set_limits(str(width),str(height))
+    w.add_widget(Widgets.Frame(width='100%%', height='100%%'))
+    w.add_split('vertical')
+    w.add_split('horizontal')
+
+    vbox_2 = Widgets.VBox()
+    a = Widgets.TabWidget()
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Report')
+    vbox_2.add_widget(a, stretch=1)
+    w.add_widget(vbox_2)
+
+    vbox_5 = Widgets.VBox()
+    a = Widgets.TabWidget()
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Control Panel')
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Errors')
+    vbox_5.add_widget(a, stretch=1)
+    w.add_widget(vbox_5)
+
+    w.add_split('horizontal')
+
+    vbox_4 = Widgets.VBox()
+    a = Widgets.TabWidget()
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Airmass Chart')
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Night Activity Chart')
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Proposals Chart')
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Schedules Chart')
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Semester Chart')
+    vbox_4.add_widget(a, stretch=1)
+    w.add_widget(vbox_4)
+
+    vbox_3 = Widgets.VBox()
+    a = Widgets.TabWidget()
+    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Slew Chart')
+    vbox_3.add_widget(a, stretch=1)
+    w.add_widget(vbox_3)
+
     vbox.add_widget(w, stretch=1)
 
 

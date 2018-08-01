@@ -24,7 +24,7 @@ __all__ = ['WidgetError', 'WidgetBase', 'TextEntry', 'TextEntrySet',
            'RadioButton', 'Image', 'ProgressBar', 'StatusBar', 'TreeView',
            'Canvas', 'ContainerBase', 'Box', 'HBox', 'VBox', 'Frame',
            'Expander', 'TabWidget', 'StackWidget', 'MDIWidget', 'ScrollArea',
-           'Splitter', 'GridBox', 'ToolbarAction', 'Toolbar', 'MenuAction',
+           'Splitter', 'GridBox', 'ToolbarAction', 'Toolbar', 'Toolbar2', 'MenuAction',
            'Menu', 'Menubar', 'WebView',
 	   'TopLevel', 'Application', 'Dialog',
            'name_mangle', 'make_widget', 'hadjust', 'build_info', 'wrap',
@@ -155,8 +155,6 @@ class WidgetBase(Callback.Callbacks):
     def remove_css_class(self):
         classes = self.get_css_classes()
         classes = classes[:-1]
-        print 'In remove_css_class'
-        print type(classes)
         self.extdata.css_classes = classes
 
     def get_css_styles(self, fmt=None):
@@ -1588,7 +1586,6 @@ class Box(ContainerBase):
         else:
             d['content'] = self.render_children(spacing=self.spacing,
                                                 spacing_side='bottom')
-
         return self.html_template % d
 
 
@@ -1605,19 +1602,21 @@ class VBox(Box):
 class Frame(ContainerBase):
 
     html_template = '''
-    <div>
-    <fieldset id=%(id)s class="%(classes)s" style="%(styles)s">
+    <div style="height:%(height)s; width:%(width)s">
+    <fieldset style="height:%(height)s; width:%(width)s" "id=%(id)s class="%(classes)s" style="%(styles)s">
       %(legend)s
       %(content)s
     </fieldset>
     </div>
     '''
 
-    def __init__(self, title=None):
+    def __init__(self, title=None,width=None,height=None):
         super(Frame, self).__init__()
 
         self.widget = None
         self.label = title
+        self.height = height
+        self.width = width
 
     def set_widget(self, child, stretch=1):
         self.remove_all()
@@ -1625,12 +1624,13 @@ class Frame(ContainerBase):
 
     def render(self):
         d = dict(id=self.id, content=self.render_children(),
-                 legend='',
+                 legend='', height = self.height, width= self.width,
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
         if self.label is not None:
             d['legend'] = "<legend>%s</legend>" % self.label
 
+       	print  self.html_template % d
        	return  self.html_template % d
 
 
@@ -1748,10 +1748,8 @@ class TabWidget(ContainerBase):
         #app.do_operation('reload_page', id=self.id)
         self.make_callback('widget-added', child)
         if dynamic:
-            app.do_operation('update_html', id=self.id, value=self.render())
-            print '-------------------------------In Dynamic------------------------------------------'
-            print self.render()
-            #app.do_operation('reload_page', id=self.id)
+            #app.do_operation('update_html', id=self.id, value=self.render_both())
+            app.do_operation('reload_page', id=self.id)
 
     def get_index(self):
         return self.index
@@ -1778,7 +1776,7 @@ class TabWidget(ContainerBase):
             res = ['''<ul class="ui-tabs-nav">\n''']
             for child in self.get_children():
                  if self._tabs_visible:
-                     res.append('''<li> <a style=""  href="#%s-%s"> %s </a></li>\n''' % (
+                     res.append('''<li> <a style="" href="#%s-%s"> %s </a></li>\n''' % (
                         self.id, child.id, child.extdata.tab_title))
                  else:
                      res.append('''<li> <a style="display: none"  href="#%s-%s"> %s </a></li>\n''' % (
@@ -1792,8 +1790,10 @@ class TabWidget(ContainerBase):
         return '\n'.join(res)
 
     def render_both(self):
+        #print 'Rendering Both'
         self.render_tabs()
         self.render_content()
+        return self.render()
 
 #EndAdded
 
@@ -1802,9 +1802,9 @@ class TabWidget(ContainerBase):
                 tabs=self.render_tabs(), content=self.render_content(),
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
-        print '-------------------------------In Render------------------------------------------'
-        print self.html_template % d
-        print '--------------------------------Out Render----------------------------------------'
+        # print '-------------------------------In Render------------------------------------------'
+        # print self.get_css_classes()
+        # print '--------------------------------Out Render----------------------------------------'
         return self.html_template % d
 
     # def render(self):
@@ -1831,7 +1831,6 @@ class TabWidget(ContainerBase):
     #     print '----------------------------------------------------------------------------------'
     #     return self.html_template % d
 
-
 class StackWidget(TabWidget):
     def __init__(self):
         super(StackWidget, self).__init__(tabpos='top', reorderable=False,
@@ -1839,16 +1838,12 @@ class StackWidget(TabWidget):
         self._tabs_visible = False
         self.remove_css_class()
         self.add_css_classes(['ui-stack'])
-        print self.get_css_classes()
-
-
-
 
 
 #TODO: Add Collapse Button and maybe add a maximize button
 class MDIWidget(ContainerBase):
 	html_template = '''
-	<div id='%(id)s' class="%(classes)s" style="%(styles)s">
+    <div id='%(id)s' class="%(classes)s" style="%(styles)s">
         	<div>
 		 	%(windows)s
 		</div>
@@ -1876,7 +1871,8 @@ class MDIWidget(ContainerBase):
 		app= self.get_app()
 		self.make_callback('widget-added', child)
                 if dynamic:
-                    app.do_operation('update_html', id=self.id, value=self.render())
+                    #app.do_operation('update_html', id=self.id, value=self.render())
+                    app.do_operation('reload_page', id=self.id)
 
 
         def _cb_redirect(self, event):
@@ -2004,7 +2000,13 @@ class Splitter(ContainerBase):
         self.make_callback('widget-added', child)
 
     def add_split(self, split):
-        self.sequence.append(str(split))
+        if split == 'horizontal':
+            self.sequence.append('vertical')
+        else:
+            self.sequence.append('horizontal')
+
+
+        #self.sequence.append(str(split))
 
     def get_sizes(self):
         return self.sizes
@@ -2125,7 +2127,7 @@ class Splitter(ContainerBase):
                  for size in self.sizes]
 
         disabled = str(not self.enabled).lower()
-        if self.orientation == 'horizontal':
+        if self.orientation == 'vertical':
             orient = 'horizontal'
         else:
             orient = 'vertical'
@@ -2375,8 +2377,79 @@ class Toolbar(ContainerBase):
         pass
 
     def render(self):
-        #print self.widget.render()
+        print self.widget.render()
         return self.widget.render()
+
+class Toolbar2(ContainerBase):
+
+    html_template= '''
+<div id="%(id)s"></div>
+     <script type="text/javascript">
+        $("#%(id)s").jqxToolBar({
+    width: "100%%",
+    height: 35,
+    tools: "%(tools)s",
+    initTools: function (type, index, tool, menuToolIninitialization) {
+        switch (index) {
+            case 0:
+                tool.jqxToggleButton({ width: 80, toggled: true });
+                            tool.text("Enabled");
+                            tool.on("click", function () {
+                                var toggled = tool.jqxToggleButton("toggled");
+                                if (toggled) {
+                                    tool.text("Enabled");
+                                } else {
+                                    tool.text("Disabled");
+                                }
+                            ginga_app.widget_handler('activate', '%(id)s', 'clicked')
+                            });
+                            break;
+            case 1:
+                tool.text("B");
+                ool.on("click", function () {
+                    var toggled = tool.jqxToggleButton("toggled");
+                });
+                break;
+            case 2:
+                tool.text("C");
+                break;
+        }
+    }
+});
+    </script>
+
+    '''
+
+    def __init__(self, orientation='horizontal',menu=None):
+        super(Toolbar2, self).__init__()
+
+        self.orientation = orientation
+        self.widget = None
+        self.tools= []
+        self.tool_count = 0
+        self.menu = menu
+        self.enable_callback('activated')
+
+    # TODO:
+    def add_button(self, text, title,iconpath=None, iconsize=None):
+        self.tools.append('button')
+        self.tool_count += 1
+
+
+    # TODO:
+    def add_separator(self):
+        self.tools.append('|')
+
+    def _cb_redirect(self, event):
+        self.make_callback('activated')
+        self.make_callback('Please')
+
+    def render(self):
+        d = dict(id = self.id, tools= ' '.join(self.tools), )
+        print 'Printing Self Tools\n' + ' '.join(self.tools)
+        print 'Tool Count: ' + str(self.tool_count)
+        print self.html_template % d
+        return self.html_template % d
 
 
 class MenuAction(WidgetBase):
@@ -2408,6 +2481,8 @@ class MenuAction(WidgetBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        print 'In Menu Action ----------------------------------------'
+        print self.html_template % d
         return self.html_template % d
 
 
@@ -2499,8 +2574,11 @@ class Menu(ContainerBase):
                  styles=self.get_css_styles(fmt='str'))
 
         if self.widget is not None:
+
             return self.html_template1 % d
 
+        print 'In Menu ----------------------------------------'
+        print self.html_template2 % d
         return self.html_template2 % d
 
 
@@ -2560,6 +2638,7 @@ class Menubar(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        print 'In MenuBar ----------------------------------------'
         print self.html_template % d
         return self.html_template % d
 
@@ -2594,6 +2673,7 @@ class TopLevel(ContainerBase):
 <html>
 <head>
     <title>%(title)s</title>
+    <!-- Test -->
     <style>
       body {
         width: 100%%;
@@ -2607,12 +2687,16 @@ class TopLevel(ContainerBase):
     </style>
     <meta name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi" />
+
 </head>
+
 <body>
     %(script_imports)s
 
     <!-- For Ginga -->
     <link rel="stylesheet" href="/js/ginga_pg.css" type="text/css" />
+    <link rel="stylesheet" href="/js/jqwidgets/styles/jqx.base.css" type="text/css" />
+
     <script type="text/javascript" src="/js/ginga_pg.js"></script >
     <script type="text/javascript">
         var wid = "%(wid)s";
@@ -2734,8 +2818,8 @@ class Application(Callback.Callbacks):
 
         'jquery': '''
     <!-- jQuery foundation -->
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="/js/ginga_pg.css" type="text/css" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" media="all">
+    <link rel="stylesheet" href="/js/ginga_pg.css" type="text/css" media="all"/>
 
     <script src="//code.jquery.com/jquery-1.12.4.js"></script >
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script >
@@ -2760,6 +2844,12 @@ class Application(Callback.Callbacks):
     <script type="text/javascript" src="/js/jqwidgets/jqxdatatable.js"></script >
     <script type="text/javascript" src="/js/jqwidgets/jqxtreegrid.js"></script >
     <script type="text/javascript" src="/js/jqwidgets/jqxslider.js"></script >
+    <script type="text/javascript" src="/js/jqwidgets/jqxlistbox.js"></script>
+    <script type="text/javascript" src="/js/jqwidgets/jqxcombobox.js"></script>
+    <script type="text/javascript" src="/js/jqwidgets/jqxdropdownlist.js"></script>
+    <script type="text/javascript" src="/js/jqwidgets/jqxinput.js"></script>
+    <script type="text/javascript" src="/js/scripts/jquery-1.12.4.min.js"></script>
+
     ''',
     }
 
@@ -3185,6 +3275,8 @@ def make_widget(title, wtype):
         w = TextArea(editable=True)
     elif wtype == 'toolbar':
         w = Toolbar()
+    elif wtype == 'toolbar2':
+        w = Toolbar2()
     elif wtype == 'progress':
         w = ProgressBar()
     elif wtype == 'menubar':
