@@ -267,14 +267,29 @@ class TextEntrySet(WidgetBase):
         </span>
         </div>
         '''
+    html_template2 = '''
+    <div>
+        <span class="%(classes)s" style="%(styles)s">
+        <input type="button" %(disabled)s
+            class="%(classes)s" style="%(styles)s"
+            onclick="ginga_app.widget_handler('activate', '%(id)s',
+              document.getElementById('%(id)s').value)" value="Set"/>
+        <input id=%(id)s type="text" size=%(size)d name="%(id)s"
+           class="%(classes)s" style="%(styles)s"
+           %(disabled)s %(editable)s onchange="ginga_app.widget_handler('activate', '%(id)s',
+              document.getElementById('%(id)s').value)" value="%(text)s"/>
+        </span>
+        </div>
+        '''
 
-    def __init__(self, text='', editable=True):
+    def __init__(self, text='', editable=True, button= 'Right'):
         super(TextEntrySet, self).__init__()
 
         self.widget = None
         self.text = text
         self.font = default_font
         self.editable = editable
+        self.button = button
         # self.entry = None
         # self.btn = None
         self.length = 20    # seems to be default HTML5 size
@@ -317,7 +332,11 @@ class TextEntrySet(WidgetBase):
         if not self.editable:
             d['editable'] = 'readOnly'
         #print self.html_template % d  # noqa
-        return self.html_template % d  # noqa
+        if self.button == 'Right':
+            return self.html_template % d  # noqa
+        else:
+            return self.html_template2 % d  # noqa
+
 
 
 class TextArea(WidgetBase):
@@ -473,14 +492,17 @@ class Button(WidgetBase):
         <input id=%(id)s type="button"
             class="%(classes)s" style="%(styles)s" %(disabled)s
             onclick="ginga_app.widget_handler('activate', '%(id)s', 'clicked')"
-            value="%(text)s"> </div>
+            value="%(text)s" %(disabled)s > </div>
             '''
 
-    def __init__(self, text=''):
+    def __init__(self, text='', disabled=None, width=None,fontsize=None):
         super(Button, self).__init__()
 
         self.text = text
         self.widget = None
+        self.disabled = disabled
+        self.width=width
+        self.fontsize=fontsize
 
         self.enable_callback('activated')
 
@@ -491,8 +513,15 @@ class Button(WidgetBase):
         d = dict(id=self.id, text=self.text, disabled='',
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
-        if not self.enabled:
+        if self.disabled:
             d['disabled'] = 'disabled'
+        if self.width is not None:
+            d['styles'] = d['styles'] + '; width: ' + self.width
+        if self.fontsize is not None:
+            d['styles'] = d['styles'] + '; font-size: ' + self.fontsize
+
+
+        #print d['styles']
         return self.html_template % d  # noqa
 
 
@@ -640,7 +669,7 @@ class Slider(WidgetBase):
     </div>
     <script type="text/javascript">
     $(document).ready(function () {
-    $('#%(id)s').jqxSlider({ orientation: '%(orientation)s', value: %(value)s , max: %(max)s, min: %(min)s, height: %(height)s , width: %(width)s, showButtons: %(showbuttons)s });
+    $('#%(id)s').jqxSlider({ orientation: '%(orientation)s', value: %(value)s , max: %(max)s, min: %(min)s, height: "%(height)s" , width: "%(width)s", showButtons: %(showbuttons)s });
     $('#%(id)s').on('change', function (event) {
     ginga_app.widget_handler('activate', '%(id)s', parseInt(event.args.value));
     });
@@ -648,7 +677,7 @@ class Slider(WidgetBase):
     </script >
     '''
 
-    def __init__(self, orientation='horizontal',buttons='false', dtype=int, track=False):
+    def __init__(self, orientation='horizontal',buttons='false', dtype=int, track=False, width='300px', height = '50px'):
         super(Slider, self).__init__()
         self.orientation = orientation
         self.track = track
@@ -658,8 +687,8 @@ class Slider(WidgetBase):
         self.min = dtype(0)
         self.max = dtype(0)
         self.step = dtype(0)
-        self.width = 300
-        self.height = 50
+        self.width = width
+        self.height = height
         self.showButtons = buttons
 
         self.enable_callback('value-changed')
@@ -710,7 +739,7 @@ class Slider(WidgetBase):
 
         if not self.enabled:
                d['disabled'] = 'disabled'
-        #print self.html_template % d  # noqa
+        print self.html_template % d  # noqa
         return self.html_template % d  # noqa`
 
 
@@ -782,17 +811,17 @@ class CheckBox(WidgetBase):
         class="%(classes)s"
         onchange="ginga_app.widget_handler('activate', '%(id)s',
                     document.getElementById('%(id)s').checked)"
-        value="%(text)s"><label for="%(id)s">%(text)s</label>
+        value="%(text)s" %(checked)s><label for="%(id)s">%(text)s</label>
     </span>
     '''
 
-    def __init__(self, text=''):
+    def __init__(self, text='', disabled=None):
         super(CheckBox, self).__init__()
 
         self.widget = None
         self.value = False
         self.text = text
-
+        self.disabled=disabled
         self.enable_callback('activated')
 
     def _cb_redirect(self, event):
@@ -802,17 +831,24 @@ class CheckBox(WidgetBase):
     def set_state(self, tf):
         self.value = tf
 
+
     def get_state(self):
         val = self.value
         return val
 
     def render(self):
-        d = dict(id=self.id, text=self.text, disabled='',
+        d = dict(id=self.id, text=self.text, disabled='', checked='',
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
-        if not self.enabled:
+        if self.disabled:
             d['disabled'] = 'disabled'
-
+            d['styles'] = self.get_css_styles(fmt='str') + '; opacity: 0.6'
+        if self.value:
+            d['checked']='checked'
+        #print self.html_template % d
+        #print d['styles'] # noqa
+        #print self.html_template % d  # noqa
+        #print self.value
         return self.html_template % d  # noqa
 
 
@@ -964,7 +1000,7 @@ class Image(WidgetBase):
 
         im = Image.open(self.image)
         self.width, self.height = im.size
-        print 'Width: ' + str(self.width) + ' Height: ' + str(self.height)
+        #print 'Width: ' + str(self.width) + ' Height: ' + str(self.height)
 
 
     def set_size(self,width,height):
@@ -1354,7 +1390,7 @@ class TreeView(WidgetBase):
 
     def highlight_path(self, path, onoff, font_color='green'):
         item = self._path_to_item(path)  # noqa
-        print item
+        #print item
         # TODO - Is there be a way to do this with CSS?
 
     def scroll_to_path(self, path):
@@ -1417,7 +1453,7 @@ class TreeView(WidgetBase):
                  sortable=json.dumps(self.sortable),
                  width=self.width,
                  selectionMode=self.selection)
-        print self.html_template % d
+        #print self.html_template % d
         return self.html_template % d
 
 
@@ -1548,12 +1584,13 @@ class Box(ContainerBase):
     </div>
     '''
 
-    def __init__(self, orientation='horizontal'):
+    def __init__(self, orientation='horizontal',centeralign=None):
         super(Box, self).__init__()
 
         self.orientation = orientation
         self.widget = None
         self.spacing = 0
+        self.centeralign=centeralign
 
         if self.orientation == 'horizontal':
             self.add_css_classes(['hbox'])
@@ -1586,12 +1623,18 @@ class Box(ContainerBase):
         else:
             d['content'] = self.render_children(spacing=self.spacing,
                                                 spacing_side='bottom')
+        if self.centeralign == True:
+            d['styles'] = d['styles'] + ': display: flex; align-items: center'
+
+        # print d['styles']
+        # print self.centeralign
+        #print self.html_template % d
         return self.html_template % d
 
 
 class HBox(Box):
-    def __init__(self):
-        super(HBox, self).__init__(orientation='horizontal')
+    def __init__(self, centeralign=None):
+        super(HBox, self).__init__(orientation='horizontal', centeralign=centeralign)
 
 
 class VBox(Box):
@@ -1630,7 +1673,7 @@ class Frame(ContainerBase):
         if self.label is not None:
             d['legend'] = "<legend>%s</legend>" % self.label
 
-       	print  self.html_template % d
+       	#print  self.html_template % d
        	return  self.html_template % d
 
 
@@ -2481,8 +2524,8 @@ class MenuAction(WidgetBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-        print 'In Menu Action ----------------------------------------'
-        print self.html_template % d
+        #print 'In Menu Action ----------------------------------------'
+        #print self.html_template % d
         return self.html_template % d
 
 
@@ -2577,8 +2620,8 @@ class Menu(ContainerBase):
 
             return self.html_template1 % d
 
-        print 'In Menu ----------------------------------------'
-        print self.html_template2 % d
+        #print 'In Menu ----------------------------------------'
+        #print self.html_template2 % d
         return self.html_template2 % d
 
 
@@ -2638,8 +2681,8 @@ class Menubar(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
-        print 'In MenuBar ----------------------------------------'
-        print self.html_template % d
+        #print 'In MenuBar ----------------------------------------'
+        #print self.html_template % d
         return self.html_template % d
 
 class WebView(WidgetBase):

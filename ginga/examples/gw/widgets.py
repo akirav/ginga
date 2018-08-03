@@ -79,9 +79,19 @@ if wname == 'label':
     vbox.add_widget(z, stretch=1)
 
 elif wname == 'button':
-    w = Widgets.Button("Press me")
+    w = Widgets.Button("Small",width='175px', fontsize='10px')
     w.add_callback('activated', lambda w: logger.info("button was clicked"))
-    w.add_callback('activated', lambda w: popup_dialog(top))
+    #w.add_callback('activated', lambda w: popup_dialog(top))
+    vbox.add_widget(w, stretch=1)
+
+    w = Widgets.Button("Medium",width='200px', fontsize='16px')
+    w.add_callback('activated', lambda w: logger.info("button was clicked"))
+    #w.add_callback('activated', lambda w: popup_dialog(top))
+    vbox.add_widget(w, stretch=1)
+
+    w = Widgets.Button("Large",width='250px',fontsize='24px')
+    w.add_callback('activated', lambda w: logger.info("button was clicked"))
+    #w.add_callback('activated', lambda w: popup_dialog(top))
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'textentry':
@@ -94,7 +104,7 @@ elif wname == 'textentry':
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'textentryset':
-    w = Widgets.TextEntrySet(editable=True)
+    w = Widgets.TextEntrySet(editable=True,button='Left')
     w.set_font("courier")
 
     #w.set_font("verdana")
@@ -113,6 +123,7 @@ elif wname == 'textarea':
 
 elif wname == 'checkbox':
     w = Widgets.CheckBox("Check me")
+    #w.set_state(True)
     vbox.add_widget(w, stretch=1)
 
 elif wname == 'togglebutton':
@@ -139,7 +150,7 @@ elif wname == 'spinbox':
 
 elif wname == 'slider':
     #buttons take in either true or false
-    w = Widgets.Slider(orientation='vertical', buttons = 'false')
+    w = Widgets.Slider(orientation='horizontal', buttons = 'false',width='100%')
     w.set_limits(-10, 10,incr_value=1)
     w.set_value(4)
     vbox.add_widget(w)
@@ -199,10 +210,18 @@ elif wname == 'expander':
     vbox.add_widget(w)
 
 elif wname == 'hbox':
-    w = Widgets.HBox()
-    w.add_widget(Widgets.Label("Item 1"), stretch=0)
-    w.add_widget(Widgets.Label("Item 2"), stretch=1)
-    vbox.add_widget(w)
+    # w = Widgets.HBox()
+    # w.add_widget(Widgets.Label("Item 1"), stretch=0)
+    # w.add_widget(Widgets.Label("Item 2"), stretch=1)
+    # vbox.add_widget(w)
+
+    hbox_30 = Widgets.HBox(centeralign=True)
+    slider = Widgets.Slider(orientation='horizontal', buttons = 'false')
+    slider.set_limits(-10, 10,incr_value=1)
+    slider.set_value(4)
+    hbox_30.add_widget(slider)
+    hbox_30.add_widget(Widgets.TextEntrySet(text='100',editable=True))
+    vbox.add_widget(hbox_30)
 
 elif wname == 'vbox':
     w = Widgets.VBox()
@@ -461,12 +480,68 @@ elif wname == 'test':
     a = Widgets.TabWidget()
     a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Report')
     vbox_2.add_widget(a, stretch=1)
+    b = Widgets.Button("Make OPE",width='125px',fontsize='1em')
+    b.add_callback('activated', lambda w: logger.info("Make OPE clicked"))
+    vbox_2.add_widget(b, stretch=1)
     w.add_widget(vbox_2)
-
-    vbox_5 = Widgets.VBox()
     a = Widgets.TabWidget()
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Control Panel')
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Errors')
+
+#Added
+    #m = Widgets.Frame(width='100%%', height='100%%')
+    vbox_overall = Widgets.VBox()
+    vbox_20 = Widgets.VBox()
+    vbox_20.add_widget(Widgets.Label("Files",halign='center'))
+
+    hbox_10 = Widgets.HBox()
+    hbox_10.add_widget(Widgets.Label("Inputs:",halign='right'))
+    l = Widgets.TextEntry()
+    l.set_text('.')
+    hbox_10.add_widget(l)
+    vbox_20.add_widget(hbox_10)
+
+    b = Widgets.Button("Load info",width='250px',fontsize='1em')
+    b.add_callback('activated', lambda w: logger.info("Load clicked"))
+    vbox_20.add_widget(b,stretch=1)
+
+    b = Widgets.Button("Update Current Conditions", disabled=True,width='250px',fontsize='1em')
+    b.add_callback('activated', lambda w: logger.info("Update Current Conditions clicked"))
+    vbox_20.add_widget(b)
+
+    b = Widgets.Button("Update Database from Files", disabled=True,width='250px',fontsize='1em')
+    b.add_callback('activated', lambda w: logger.info("Update Database from Files clicked"))
+    vbox_20.add_widget(b)
+
+    hbox_20 = Widgets.HBox()
+
+    b = Widgets.Button("Build Schedule",width='250px',fontsize='1em')
+    b.add_callback('activated', lambda w: logger.info("Build clicked"))
+
+    hbox_20.add_widget(b)
+    hbox_20.add_widget(Widgets.CheckBox("Use QDB", disabled=True))
+    vbox_20.add_widget(hbox_20)
+    o = Widgets.CheckBox("Remove scheduled OBs")
+    o.set_state(True)
+    vbox_20.add_widget(o)
+
+    x = Widgets.Frame(width='auto', height='75%%')
+    x.set_widget(vbox_20)
+    vbox_overall.add_widget(x)
+
+    hbox_30 = Widgets.HBox(centeralign=True)
+    slider = Widgets.Slider(orientation='horizontal', buttons = 'false',width='100%%')
+    slider.set_limits(-10, 10,incr_value=1)
+    slider.set_value(4)
+    hbox_30.add_widget(slider)
+    hbox_30.add_widget(Widgets.TextEntrySet(text='100',editable=True))
+    vbox_overall.add_widget(hbox_30)
+
+    #m.set_widget(vbox_overall)
+# End Added
+    a.add_widget(vbox_overall, title='Control Panel')
+    n = Widgets.Frame(width='100%%', height='100%%')
+    n.set_widget(Widgets.Button("Remove All"))
+    a.add_widget(n, title='Errors')
+    vbox_5 = Widgets.VBox()
     vbox_5.add_widget(a, stretch=1)
     w.add_widget(vbox_5)
 
@@ -489,7 +564,6 @@ elif wname == 'test':
     w.add_widget(vbox_3)
 
     vbox.add_widget(w, stretch=1)
-
 
 else:
     # default to label

@@ -86,5 +86,8 @@ canvas {
   border: none !important;
 }
 
+.ui-tabs .ui-tabs-panel {
+  padding: 0.2em 0.2em !important;
+}
 
 /*END*/
