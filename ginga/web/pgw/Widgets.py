@@ -2261,7 +2261,7 @@ class Splitter(ContainerBase):
             # print '----------------------End Splitter---------------------------'
             return html_total
 
-        #print 'script'.join(b)
+        print 'script'.join(b)
         return 'script '.join(b)
 
 
