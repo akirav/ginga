@@ -275,6 +275,26 @@ elif wname == 'dialog':
     hbox.add_widget(w)
     vbox.add_widget(hbox)
 
+elif wname == 'test':
+    w = Widgets.Splitter()
+    w.add_widget(Widgets.Label('Content of Pane 1'))
+
+    x = Widgets.Splitter()
+    x.add_widget(Widgets.Label('Content of Pane 2'))
+    x.add_widget(Widgets.Label('Content of Pane 3'))
+
+    y = Widgets.Splitter()
+    y.add_widget(Widgets.Label('Content of Pane 2'))
+    y.add_widget(Widgets.Label('Content of Pane 3'))
+
+    z = Widgets.Splitter(orientation='vertical')
+    z.add_widget(x)
+    z.add_widget(y)
+
+    w.add_widget(z)
+    vbox.add_widget(w, stretch=1)
+
+
 else:
     # default to label
     logger.error("Don't understand kind of widget '%s'" % (wname))

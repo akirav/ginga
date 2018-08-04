@@ -1749,7 +1749,7 @@ class Splitter(ContainerBase):
     </div>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#%(id)s').jqxSplitter({ width: '100%%', height: '100%%',
+            $('#%(id)s').jqxSplitter({ width: '100%%', height: '1000',
                                        orientation: '%(orient)s',
                                        disabled: %(disabled)s,
                                        panels: %(sizes)s
@@ -1809,6 +1809,7 @@ class Splitter(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        print self.html_template % d
         return self.html_template % d
 
 
