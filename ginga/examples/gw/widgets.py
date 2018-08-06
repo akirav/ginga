@@ -404,6 +404,14 @@ elif wname == 'test':
     w.add_widget(z)
     vbox.add_widget(w, stretch=1)
 
+elif wname == 'test2':
+    w = Widgets.RadioButton("Option 1")
+    vbox.add_widget(w)
+    vbox.add_widget(Widgets.RadioButton("Option 2", group=w))
+    vbox.add_widget(Widgets.RadioButton("Option 3", group=w))
+    x = Widgets.Button("Delete Radio Button")
+    x.add_callback('activated', lambda x: logger.info("button was clicked"))
+    vbox.add_widget(x)
 
 else:
     # default to label
