@@ -301,12 +301,12 @@ elif wname == 'mdiwidget':
     w.add_widget(Widgets.Label('Content of MDI Area 1'),title='test1')
     w.add_widget(Widgets.Label('Content of MDI Area 2'),title='test2')
     w.add_widget(Widgets.SpinBox(dtype=int), title='test3')
-    w.add_widget(Widgets.CheckBox("Check me"), title='test4')
+    #w.add_widget(Widgets.CheckBox("Check me"), title='test4')
     vbox.add_widget(w, stretch=1)
 
-    v = Widgets.Button("Add MDI")
-    v.add_callback('activated', lambda v: w.add_widget(Widgets.Label('Content of Tab 1'), title='Tab 1', dynamic=1))
-    vbox.add_widget(v)
+    #v = Widgets.Button("Add MDI")
+    #v.add_callback('activated', lambda v: w.add_widget(Widgets.Label('Content of Tab 1'), title='Tab 1', dynamic=1))
+    #vbox.add_widget(v)
 
 elif wname == 'gridbox':
     w = Widgets.GridBox(rows=2, columns=2)

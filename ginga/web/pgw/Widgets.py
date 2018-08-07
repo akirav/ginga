@@ -1951,7 +1951,8 @@ class MDIWidget(ContainerBase):
             for child in self.get_children():
                 res.append(''' '%s-%s': 'docked',''' % (self.id, child.id))
             d['winmode'] = '\n'.join(res)
-            #print (self.html_template % d)
+
+            print self.html_template % d
             return self.html_template % d
 
 class ScrollArea(ContainerBase):
@@ -2309,8 +2310,7 @@ class GridBox(ContainerBase):
         self.num_rows = max(self.num_rows, row + 1)
         self.num_cols = max(self.num_cols, col + 1)
         print 'self_rows: ' + str(self.num_rows) + ' self_col ' + str(self.num_cols)
-	self.tbl[(row, col)] = child
-
+        self.tbl[(row, col)] = child
         app = self.get_app()
         if dynamic:
             app.do_operation('update_html', id=self.id,
