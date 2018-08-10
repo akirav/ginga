@@ -1727,7 +1727,7 @@ class TabWidget(ContainerBase):
     </div>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#%(id)s').tabs({ active: '%(pos)s', heightStyle: 'fill' });
+            $('#%(id)s').jqxTabs({ width: 300, height: 150 });
             $('#%(id)s').on('tabsactivate', function (event, ui) {
                 ginga_app.widget_handler('activate', '%(id)s',
                                            event['owner']['selectedItem']);
@@ -1736,7 +1736,7 @@ class TabWidget(ContainerBase):
             // see python method set_index() in this widget
             ginga_app.add_widget_custom_method('%(id)s', 'select_tab',
                 function (elt, msg) {
-                    $(elt).tabs('option', 'active', msg.index);
+                    $(elt).jqxTabs('option', 'active', msg.index);
             });
         });
     </script >
@@ -1755,7 +1755,7 @@ class TabWidget(ContainerBase):
         self.set_tab_position(tabpos)
         self.titles = []
         self._tabs_visible = True
-        self.add_css_classes(['ui-tabs'])
+        self.add_css_classes(['tabs'])
 
 
 
@@ -1818,11 +1818,10 @@ class TabWidget(ContainerBase):
 #Added
 
     def render_tabs(self):
-            res = ['''<ul class="ui-tabs-nav ">\n''']
+            res = ['''<ul>\n''']
             for child in self.get_children():
                  if self._tabs_visible:
-                     res.append('''<li> <a style="" href="#%s-%s"> %s </a></li>\n''' % (
-                        self.id, child.id, child.extdata.tab_title))
+                     res.append('''<li>  %s </li>\n''' % (child.extdata.tab_title))
                  else:
                      res.append('''<li> <a style="display: none"  href="#%s-%s"> %s </a></li>\n''' % (
                         self.id, child.id, child.extdata.tab_title))
@@ -1844,7 +1843,7 @@ class TabWidget(ContainerBase):
         # print '-------------------------------In Render------------------------------------------'
         # print self.get_css_classes()
         # print '--------------------------------Out Render----------------------------------------'
-        #print self.html_template % d
+        print self.html_template % d
         return self.html_template % d
 
     # def render(self):
