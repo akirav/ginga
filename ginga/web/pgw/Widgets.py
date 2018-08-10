@@ -1791,8 +1791,10 @@ class TabWidget(ContainerBase):
         #app.do_operation('reload_page', id=self.id)
         self.make_callback('widget-added', child)
         if dynamic:
-            #app.do_operation('update_html', id=self.id, value=self.render_both())
-            app.do_operation('reload_page', id=self.id)
+            app.do_operation('update_html', id=self.id, value=self.render())
+            print self.id
+            # print type(self.id)
+            #app.do_operation('reload_page', id=self.id)
 
     def get_index(self):
         return self.index
@@ -1816,7 +1818,7 @@ class TabWidget(ContainerBase):
 #Added
 
     def render_tabs(self):
-            res = ['''<ul class="ui-tabs-nav">\n''']
+            res = ['''<ul class="ui-tabs-nav ">\n''']
             for child in self.get_children():
                  if self._tabs_visible:
                      res.append('''<li> <a style="" href="#%s-%s"> %s </a></li>\n''' % (
@@ -1848,6 +1850,7 @@ class TabWidget(ContainerBase):
         # print '-------------------------------In Render------------------------------------------'
         # print self.get_css_classes()
         # print '--------------------------------Out Render----------------------------------------'
+        print self.html_template % d
         return self.html_template % d
 
     # def render(self):
@@ -1930,27 +1933,25 @@ class MDIWidget(ContainerBase):
             styles=self.get_css_styles(fmt='str'), windows='' ,
             winmode='')
 
+            res = []
             collapse_res = []
+            res2= []
             for child in self.get_children():
                 collapse_res.append(
                 ''' $('#%s').jqxDocking('showCollapseButton', '%s-%s');'''
                 % (self.id, self.id, child.id))
-            d['collapse'] = '\n'.join(collapse_res)
-            #print '\n'.join(collapse_res)
 
-            res = []
-            for child in self.get_children():
                 res.append('''
                 <div id="%s-%s">
                 <div>%s</div>%s
                 </div>
                 ''' % (self.id,child.id,child.extdata.tab_title,child.render())
                 )
-            d['windows'] = '\n'.join(res)
-            res= []
-            for child in self.get_children():
-                res.append(''' '%s-%s': 'docked',''' % (self.id, child.id))
-            d['winmode'] = '\n'.join(res)
+
+                res2.append(''' '%s-%s': 'docked',''' % (self.id, child.id))
+            d['collapse'] = '\n'.join(collapse_res)
+            d['windows'] = '\n'.join(res)                            
+            d['winmode'] = '\n'.join(res2)
 
             print self.html_template % d
             return self.html_template % d
@@ -2849,6 +2850,7 @@ class TopLevel(ContainerBase):
                  classes=self.get_css_classes(fmt='str'),
                  styles=self.get_css_styles(fmt='str'))
 
+        #print self.html_template % d  # noqa
         return self.html_template % d  # noqa
 
 

@@ -1,8 +1,8 @@
 
 ginga_make_application = function (ws_url, debug_flag) {
-        
+
     var ginga_app = {};
-    
+
     ginga_app.ws_url = ws_url
     //ginga_app.socket = new WebSocket(ws_url);
     ginga_app.canvases = {}
@@ -10,7 +10,7 @@ ginga_make_application = function (ws_url, debug_flag) {
     ginga_app.debug = debug_flag
     ginga_app.custom_methods = {}
     ginga_app.widget_custom_methods = {}
-    
+
     ginga_app.onmessage_handler = function(e) {
         try {
             message = JSON.parse(e.data);
@@ -51,6 +51,8 @@ ginga_make_application = function (ws_url, debug_flag) {
                 else if (message.operation == "update_html") {
                     // update widget content
                     elt.innerHTML = message.value;
+                    console.log('Message ID: \n' + message.id)
+                    console.log('\n\n'+ message.value)
                 }
                 else if (message.operation == "update_imgsrc") {
                     // update image content
@@ -90,7 +92,7 @@ ginga_make_application = function (ws_url, debug_flag) {
         ginga_app.socket = new WebSocket(ginga_app.ws_url);
         ginga_app.socket.onmessage = ginga_app.onmessage_handler;
     }
-  
+
     ginga_app.send_pkt = function (message) {
         var ws = ginga_app.socket;
         if (ws.readyState == WebSocket.CLOSED) {
@@ -101,7 +103,7 @@ ginga_make_application = function (ws_url, debug_flag) {
             };
         ws.send(JSON.stringify(message));
         };
-    
+
     ginga_app.widget_handler = function (msgtype, id, value) {
         if (ginga_app.debug) console.log("callback for widget changed");
         var ws = ginga_app.socket;
@@ -143,7 +145,7 @@ ginga_make_application = function (ws_url, debug_flag) {
 
 
     ginga_app.init_socket();
-  
+
     ginga_app.socket.onopen = function (e) {
         // initialize all our canvases
         for (var key in ginga_app.canvases) {
@@ -158,7 +160,7 @@ ginga_make_application = function (ws_url, debug_flag) {
 }
 
 ginga_initialize_canvas = function (canvas, id, app) {
-    
+
     var pg_canvas = {};
     var is_touch_device = 'ontouchstart' in document.documentElement;
 
@@ -174,15 +176,15 @@ ginga_initialize_canvas = function (canvas, id, app) {
         window.mozRequestAnimationFrame ||
         window.oRequestAnimationFrame ||
         window.msRequestAnimationFrame;
-    
+
     pg_canvas.send_pkt = app.send_pkt
-    
+
     pg_canvas.context = canvas.getContext("2d");
     pg_canvas.hiddenCanvas = document.createElement("canvas");
     pg_canvas.hiddenCanvas.width = canvas.width;
     pg_canvas.hiddenCanvas.height = canvas.height;
     pg_canvas.hiddenContext = pg_canvas.hiddenCanvas.getContext("2d");
-    
+
     pg_canvas.input_handler = function (e) {
         var message = {
             type: e.type || "",
@@ -202,7 +204,7 @@ ginga_initialize_canvas = function (canvas, id, app) {
         }
         pg_canvas.send_pkt(message);
     }
-    
+
     pg_canvas.input_handler_suppress = function (e) {
         var message = {
             type: e.type || "",
@@ -223,7 +225,7 @@ ginga_initialize_canvas = function (canvas, id, app) {
         e.preventDefault();
         pg_canvas.send_pkt(message);
     }
-    
+
     pg_canvas.input_handler_gesture = function (e) {
         var message = {
             type: e.type || "",
@@ -245,7 +247,7 @@ ginga_initialize_canvas = function (canvas, id, app) {
         e.preventDefault();
         pg_canvas.send_pkt(message);
     }
-    
+
     pg_canvas.input_handler_focus = function (e) {
 	canvas.focus()
 	pg_canvas.input_handler(e)
@@ -271,11 +273,11 @@ ginga_initialize_canvas = function (canvas, id, app) {
         }
         pg_canvas.send_pkt(message);
     }
-    
+
     pg_canvas.input_handler_suppress_only = function (e) {
         e.preventDefault();
     }
-    
+
     //pg_canvas.resize_window = function resize_canvas() {
     pg_canvas.resize_canvas = function () {
         console.log("canvas " + pg_canvas.canvas_id + " resize cb");
@@ -323,7 +325,7 @@ ginga_initialize_canvas = function (canvas, id, app) {
         var hidCtx = pg_canvas.hiddenContext;
         var hidCvs = pg_canvas.hiddenCanvas;
         var animFrame = pg_canvas.animFrame;
-    
+
         ctx.drawImage(hidCvs, 0, 0);
 
         animFrame(function () {
@@ -331,11 +333,11 @@ ginga_initialize_canvas = function (canvas, id, app) {
             //console.log("Refresh canvas");
         });
     }
-    
+
     pg_canvas.drawShape = function(shape) {
         var ctx = pg_canvas.hiddenContext;
         var operation = pg_canvas.shapeToFunc[shape["type"]];
-    
+
         if (operation === undefined) {
             console.log("Could not find operation for shape " + shape["type"]);
         }
@@ -348,7 +350,7 @@ ginga_initialize_canvas = function (canvas, id, app) {
         operation(ctx, shape);
         ctx.restore();
     }
-    
+
     pg_canvas.drawRect = function (ctx, rect) {
         if (rect.lineColor) {
             ctx.strokeStyle = rect.lineColor;
@@ -359,11 +361,11 @@ ginga_initialize_canvas = function (canvas, id, app) {
             ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
         }
     }
-    
+
     pg_canvas.clearRect = function (ctx, rect) {
             ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
     }
-    
+
     pg_canvas.drawCircle = function(ctx, circle) {
         ctx.beginPath();
         ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, true);
@@ -376,32 +378,32 @@ ginga_initialize_canvas = function (canvas, id, app) {
             ctx.fill();
         }
     }
-    
+
     pg_canvas.drawOval = function(ctx, oval) {
         var x = oval.x + oval.width / 2;
         var y = oval.y + oval.height / 2;
-        
+
         ctx.save();
         ctx.translate(x, y);
-        
+
         ctx.scale(oval.width, oval.height);
-        
+
         ctx.beginPath();
         ctx.arc(0, 0, 0.5, 0, 2 * Math.PI, true);
-        
+
         ctx.restore();
-        
+
         if (oval.lineColor) {
             ctx.strokeStyle = oval.lineColor;
             ctx.stroke();
         }
-        
+
         if (oval.fillColor) {
             ctx.fillStyle = oval.fillColor;
             ctx.fill();
         }
     }
-    
+
     pg_canvas.drawLine = function(ctx, line) {
         ctx.beginPath();
         ctx.moveTo(line.startX, line.startY);
@@ -409,38 +411,38 @@ ginga_initialize_canvas = function (canvas, id, app) {
         ctx.strokeStyle = line.color || "#000";
         ctx.stroke();
     }
-    
+
     pg_canvas.drawPolygon = function(ctx, polygon) {
         var startX = polygon.points[0][0];
         var startY = polygon.points[0][1];
-        
+
         ctx.beginPath();
         ctx.moveTo(startX, startY);
-        
+
         polygon.points.slice(1).forEach(function (pt) {
             ctx.lineTo(pt[0], pt[1]);
         });
-        
+
         ctx.lineTo(startX, startY);
-        
+
         if (polygon.lineColor) {
             ctx.strokeStyle = polygon.lineColor;
             ctx.stroke();
         }
-        
+
         if (polygon.fillColor) {
             ctx.fillStyle = polygon.fillColor;
             ctx.fill();
         }
     }
-    
+
     pg_canvas.drawImage = function(ctx, imgInfo) {
         var img = new Image();
         img.src = imgInfo.src;
-        
+
         //var width = imgInfo.width || img.width;
         //var height = imgInfo.height || img.height;
-    
+
         // Use an event listener, because otherwise if the draw happens
         // before the image is loaded you get nothing or an error in some
         // browsers (e.g. Mozilla)
@@ -451,13 +453,13 @@ ginga_initialize_canvas = function (canvas, id, app) {
             //console.log("drew image");
             })
     }
-    
+
     pg_canvas.drawCompound = function(ctx, compound) {
         compound.shapes.forEach(function (shp) {
             pg_canvas.shapeToFunc[shp["type"]](ctx, shp);
         });
     }
-    
+
     pg_canvas.shapeToFunc = {
         clear: pg_canvas.clearRect,
         rect: pg_canvas.drawRect,
@@ -468,9 +470,9 @@ ginga_initialize_canvas = function (canvas, id, app) {
         polygon: pg_canvas.drawPolygon,
         compound: pg_canvas.drawCompound
     }
-    
+
     var setup_canvas = function(e) {
-        
+
         console.log("initializing canvas for events");
 
         // set up some event handlers for the canvas
@@ -488,7 +490,7 @@ ginga_initialize_canvas = function (canvas, id, app) {
         canvas.ondragover  = pg_canvas.input_handler_suppress_only;
         // disable right click context mentu
         canvas.oncontextmenu  = pg_canvas.input_handler_suppress_only;
-        
+
         canvas.addEventListener("keydown", pg_canvas.input_handler, true);
         canvas.addEventListener("keyup", pg_canvas.input_handler, true);
         canvas.addEventListener("keypress", pg_canvas.input_handler, true);
@@ -527,8 +529,6 @@ ginga_initialize_canvas = function (canvas, id, app) {
         pg_canvas.send_pkt(message);
     }
     pg_canvas.initialize_canvas = setup_canvas
-    
+
     return pg_canvas;
 }
-
-
