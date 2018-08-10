@@ -1727,7 +1727,8 @@ class TabWidget(ContainerBase):
     </div>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#%(id)s').jqxTabs({ width: 300, height: 150 });
+            $('#%(id)s').jqxTabs({ width: '100%%', height: 300, position:"%(position)s" });
+
             $('#%(id)s').on('tabsactivate', function (event, ui) {
                 ginga_app.widget_handler('activate', '%(id)s',
                                            event['owner']['selectedItem']);
@@ -1742,7 +1743,7 @@ class TabWidget(ContainerBase):
     </script >
     """
 
-    def __init__(self, tabpos='bottom', reorderable=False, detachable=True,
+    def __init__(self, tabpos='top', reorderable=False, detachable=True,
                  group=0):
         super(TabWidget, self).__init__()
 
@@ -1838,7 +1839,7 @@ class TabWidget(ContainerBase):
     def render(self):
         d = dict(id=self.id, pos=self.tabpos,
                 tabs=self.render_tabs(), content=self.render_content(),
-                 classes=self.get_css_classes(fmt='str'),
+                 classes=self.get_css_classes(fmt='str'), position = self.tabpos,
                  styles=self.get_css_styles(fmt='str'))
         # print '-------------------------------In Render------------------------------------------'
         # print self.get_css_classes()

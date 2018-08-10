@@ -268,6 +268,7 @@ elif wname == 'scrollarea':
 
 elif wname == 'tabwidget':
     w = Widgets.TabWidget()
+    #w.set_tab_position('bottom')
     w.add_widget(Widgets.Label('Content of Tab 1'), title='Tab 1')
     w.add_widget(Widgets.Label('Content of Tab 2'), title='Tab 2')
     hbox = Widgets.HBox()
