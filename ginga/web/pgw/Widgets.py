@@ -24,7 +24,7 @@ __all__ = ['WidgetError', 'WidgetBase', 'TextEntry', 'TextEntrySet',
            'RadioButton', 'Image', 'ProgressBar', 'StatusBar', 'TreeView',
            'Canvas', 'ContainerBase', 'Box', 'HBox', 'VBox', 'Frame',
            'Expander', 'TabWidget', 'StackWidget', 'MDIWidget', 'ScrollArea',
-           'Splitter', 'GridBox', 'ToolbarAction', 'Toolbar', 'Toolbar2', 'MenuAction',
+           'Splitter', 'GridBox', 'ToolbarAction', 'Toolbar', 'MenuAction',
            'Menu', 'Menubar', 'WebView',
 	   'TopLevel', 'Application', 'Dialog',
            'name_mangle', 'make_widget', 'hadjust', 'build_info', 'wrap',
@@ -1742,7 +1742,7 @@ class TabWidget(ContainerBase):
     </script >
     """
 
-    def __init__(self, tabpos='top', reorderable=False, detachable=True,
+    def __init__(self, tabpos='bottom', reorderable=False, detachable=True,
                  group=0):
         super(TabWidget, self).__init__()
 
@@ -1834,12 +1834,6 @@ class TabWidget(ContainerBase):
         for child in self.get_children()]
         return '\n'.join(res)
 
-    def render_both(self):
-        #print 'Rendering Both'
-        self.render_tabs()
-        self.render_content()
-        return self.render()
-
 #EndAdded
 
     def render(self):
@@ -1850,7 +1844,7 @@ class TabWidget(ContainerBase):
         # print '-------------------------------In Render------------------------------------------'
         # print self.get_css_classes()
         # print '--------------------------------Out Render----------------------------------------'
-        print self.html_template % d
+        #print self.html_template % d
         return self.html_template % d
 
     # def render(self):
@@ -1886,7 +1880,7 @@ class StackWidget(TabWidget):
         self.add_css_classes(['ui-stack'])
 
 
-#TODO: Add Collapse Button and maybe add a maximize button
+#TODO: Add Maximize Button to each display in the interface
 class MDIWidget(ContainerBase):
 	html_template = '''
     <div id='%(id)s' class="%(classes)s" style="%(styles)s">
@@ -1950,10 +1944,10 @@ class MDIWidget(ContainerBase):
 
                 res2.append(''' '%s-%s': 'docked',''' % (self.id, child.id))
             d['collapse'] = '\n'.join(collapse_res)
-            d['windows'] = '\n'.join(res)                            
+            d['windows'] = '\n'.join(res)
             d['winmode'] = '\n'.join(res2)
 
-            print self.html_template % d
+            #print self.html_template % d
             return self.html_template % d
 
 class ScrollArea(ContainerBase):
@@ -1999,272 +1993,74 @@ class ScrollArea(ContainerBase):
 class Splitter(ContainerBase):
 # Note: Width and Height need to be pixels
 
-    html_template3 = """
-    <div id='%(id)s' class="%(classes)s" style="%(styles)s">
-            %(panels)s
-    </div>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#%(id)s').jqxSplitter({ width: '%(width)s', height: '%(height)s',
-                                       orientation: '%(orient)s',
-                                       disabled: %(disabled)s,
-                                       panels: %(sizes)s
-                                        });
-            {$(splits)s}
-            $('#%(id)s').on('resize', function (event) {
-                 var sizes = [];
-                 for (i = 0; i < event.args.panels.length; i++) {
-                     var panel = event.args.panels[i];
-                     sizes.push(panel.size);
-                 }
-                 ginga_app.widget_handler('activate', '%(id)s', sizes);
+        html_template = """
+        <div id='%(id)s' class="%(classes)s" style="%(styles)s">
+          %(panels)s
+        </div>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('#%(id)s').jqxSplitter({ width: '100%%', height: '1000',
+                                           orientation: '%(orient)s',
+                                           disabled: %(disabled)s,
+                                           panels: %(sizes)s
+                                            });
+                $('#%(id)s').on('resize', function (event) {
+                     var sizes = [];
+                     for (i = 0; i < event.args.panels.length; i++) {
+                         var panel = event.args.panels[i];
+                         sizes.push(panel.size);
+                     }
+                     ginga_app.widget_handler('activate', '%(id)s', sizes);
+                });
             });
-        });
-    {console.log('width: ' + window.innerWidth)}
-    {console.log('height: ' + window.innerHeight)}
-    </script >
-    """
+        </script>
+        """
 
-    def __init__(self, orientation):
-        super(Splitter, self).__init__()
+        def __init__(self, orientation='horizontal'):
+            super(Splitter, self).__init__()
 
-        self.orientation = orientation
-        self.sequence = []
-        self.more_splitters = []
-        self.widget = None
-        self.sizes = []
-        self.width = ''
-        self.height = ''
-        self.enable_callback('activated')
-        self.s_child_count = 0
-        self.s_split_count = 0
+            self.orientation = orientation
+            self.widget = None
+            self.sizes = []
 
-    def add_widget(self, child):
-        self.add_ref(child)
-        self.sequence.append('child')
-        self.make_callback('widget-added', child)
+            self.enable_callback('activated')
 
-    def add_split(self, split):
-        if split == 'horizontal':
-            self.sequence.append('vertical')
-        else:
-            self.sequence.append('horizontal')
+        def add_widget(self, child):
+            self.add_ref(child)
+            self.make_callback('widget-added', child)
 
+        def get_sizes(self):
+            return self.sizes
 
-        #self.sequence.append(str(split))
+        def set_sizes(self, sizes):
+            self.sizes = sizes
 
-    def get_sizes(self):
-        return self.sizes
+            # TODO:
+            #self.call_custom_method('set_sizes', sizes=self.sizes)
 
-    def set_sizes(self, sizes):
-        self.sizes = sizes
+        def _cb_redirect(self, event):
+            self.set_sizes(event.value)
 
-    def set_limits(self, width , height):
-        self.width = width
-        self.height = height
-        # TODO:
-        #self.call_custom_method('set_sizes', sizes=self.sizes)
+            self.make_callback('activated', self.sizes)
 
-    def num_orientation(self):
-        return len(self.orientation)
-
-    def _cb_redirect(self, event):
-        self.set_sizes(event.value)
-
-        self.make_callback('activated', self.sizes)
-
-    def render(self):
-        #Variable Declarations
-        splitlist = []
-        splits=[]
-
-        #Count the number of children or splitters
-        for p in self.sequence:
-            #print '\t'+ p
-            if p != 'child':
-                self.s_split_count += 1
-                splitlist.append(p)
+        def render(self):
+            panels = ['''<div> %s </div>''' % (child.render())
+                      for child in self.get_children()]
+            sizes = ['''{ size: %d }''' % size
+                     for size in self.sizes]
+            disabled = str(not self.enabled).lower()
+            if self.orientation == 'vertical':
+                orient = 'horizontal'
             else:
-                self.s_child_count += 1
+                orient = 'vertical'
+            d = dict(id=self.id, panels='\n'.join(panels), disabled=disabled,
+                     sizes='[ %s ]' % ','.join(sizes), orient=orient,
+                     width=500, height=500,
+                     classes=self.get_css_classes(fmt='str'),
+                     styles=self.get_css_styles(fmt='str'))
 
-        # Variable Declaration
-        incount = []
-        count = 0
-        testpanel2 =[]
-        test = self.get_children()
-        childcount = 0
-        splittercount = 0
-
-        #Loop to determine what goes in the panel
-        while count < len(self.sequence):
-            #Checks if there is a counter active in the list
-
-            #Decreases the count by 1 if there is an active counter
-            if len(incount) > 0:
-                i = 0
-                temp = []
-                while i < len(incount):
-                    temp.append(incount[i] - 1)
-                    i+=1
-                del incount[:]
-                incount = []
-                i = 0
-                while i < len(temp):
-                    incount.append(temp[i])
-                    i += 1
-                del temp[:]
-
-            #If the current sequence is a splitter
-            if self.sequence[count] is not 'child':
-                splittercount += 1
-                testpanel2.append('''<div>''')
-                testpanel2.append('''<div id='{}-{}' >'''.format('%(id)s',splittercount))
-
-                #Update all counters by 2 and add a new counter to the incount list
-                i = 0
-                temp = []
-                while i < len(incount):
-                    temp.append(incount[i] + 2)
-                    i+=1
-                del incount[:]
-                incount = []
-                i = 0
-                while i < len(temp):
-                    incount.append(temp[i])
-                    i += 1
-                del temp[:]
-                incount.append(2)
-
-            #The current sequence is a child
-            else:
-                #og
-                testpanel2.append(test[childcount].render())
-                childcount += 1
-            #Checks if there is a 0 in incount
-
-            #If there is a zero it will place a div.
-            if 0 in incount:
-                counttemp = 0
-                for c in incount:
-                    if c == 0:
-                        counttemp += 1
-                while counttemp != 0:
-                    testpanel2.append('''</div>''')
-                    testpanel2.append('''</div>''')
-                    incount.remove(0)
-                    counttemp -= 1
-
-            count += 1
-
-        #From List to String
-        testpanel = '\n'.join(testpanel2)
-
-        count = 1
-        for p in splitlist:
-            splits.append('''$('#{}-{}').jqxSplitter({{ width: '100%%', height: '100%%',
-            orientation: '{}'}});'''.format('%(id)s',count,p))
-            count += 1
-
-        self.html_template3 = self.html_template3.replace('{$(splits)s}','\n'.join(splits))
-        self.html_template3 = self.html_template3.replace('%(panels)s',testpanel)
-
-        sizes = ['''{ size: %d }''' % size
-                 for size in self.sizes]
-
-        disabled = str(not self.enabled).lower()
-        if self.orientation == 'vertical':
-            orient = 'horizontal'
-        else:
-            orient = 'vertical'
-        d = dict(id=self.id,
-                disabled=disabled,
-                 width = self.width, height = self.height,
-                 sizes='[ %s ]' % ','.join(sizes), orient=orient,
-                 classes=self.get_css_classes(fmt='str'),
-                 styles=self.get_css_styles(fmt='str'))
-
-
-        a =  self.html_template3 % d
-
-        #Splits the html template whenever script is found
-        b = a.split("script ")
-        print 'Size of b: ' + str(len(b))
-
-        #If there are more than one <script > </script > pair
-        if len(b) > 3:
-            #for i, l in enumerate(b):
-                    #print str(i) +'\n'+ l + '\n--------------------------------------------------'
-
-            # Variable Declarations
-            i = 0
-            c = []
-            e = []
-            f = ''
-            #Split up html and the JavaScript
-            for i, l in enumerate(b):
-                if i == len(b) - 2 and 0 != len(b) % 2:
-                    #print 'last odd: ' + str(i)
-                    f = b[i]
-                #Get the last script file which is the script for the splitter
-                elif i == len(b) - 2:
-                    #print 'last even: ' + str(i)
-                    f = b[i]
-                #Should never go into this case
-                elif i%2 == 0:
-                    #print 'even ' + str(i)
-                    e.append(b[i])
-                #Get all of the script
-                else:
-                    #print 'odd ' + str(i)
-                    c.append(b[i])
-
-
-            #Get rid of junk in which is the script for the splitter
-            f1 = f.split('>', 1)[1]
-            f2 = f1.rsplit('<', 1)[0]
-            #print f
-            #print '-------------------------------------------------'
-            #print f2
-
-
-            #Get rid of 'type="text/javascript">' in c which is script of other childs
-            c2 = [C.split('>', 1)[1] for C in c]
-            c3 = [C.rsplit('<', 1)[0] for C in c2]
-            c4 = '\n'.join(c3)
-            #for C in c: print C + '\n-------------'
-            #print '-------------------------------------------------'
-            #for C in c3: print C + '\n-------------'
-            #print '-------------------------------------------------'
-            #print c4
-
-            #Get rid of '<' and '>' from e which is html
-            e.pop()
-            e2= []
-            for i, E in enumerate(e):
-                if i != 0:
-                    e2.append(e[i][1:-1])
-                else:
-                    e2.append (e[i][:-1])
-
-            #for E in e: print E + '\n-------------'
-            #print '-------------------------------------------------'
-            #for E in e2: print E + '\n-------------'
-            #print '-------------------------------------------------'
-
-            #List -> String of all the html components
-            html = '\n'.join(e2)
-            #print html
-
-            #Combination of Styles
-            script = '<script type="text/javascript">\n' + f2 + c4 + '</script >'
-            html_total = html + script
-            # print '----------------------In Splitter---------------------------'
-            #print html_total
-            # print '----------------------End Splitter---------------------------'
-            return html_total
-
-        print 'script'.join(b)
-        return 'script '.join(b)
+            #print self.html_template % d
+            return self.html_template % d
 
 
 class GridBox(ContainerBase):
@@ -2310,7 +2106,7 @@ class GridBox(ContainerBase):
         self.add_ref(child)
         self.num_rows = max(self.num_rows, row + 1)
         self.num_cols = max(self.num_cols, col + 1)
-        print 'self_rows: ' + str(self.num_rows) + ' self_col ' + str(self.num_cols)
+        #print 'self_rows: ' + str(self.num_rows) + ' self_col ' + str(self.num_cols)
         self.tbl[(row, col)] = child
         app = self.get_app()
         if dynamic:
@@ -2323,7 +2119,7 @@ class GridBox(ContainerBase):
 
     def render_body(self):
         self.countrender += 1
-        print self.countrender
+        #print self.countrender
         res = []
         for i in range(self.num_rows):
             res.append("  <tr>")
@@ -2344,7 +2140,7 @@ class GridBox(ContainerBase):
                  styles=self.get_css_styles(fmt='str'),
                  content=self.render_body())
 
-        print self.html_template % d
+        #print self.html_template % d
         return self.html_template % d
 
 
@@ -2421,80 +2217,8 @@ class Toolbar(ContainerBase):
         pass
 
     def render(self):
-        print self.widget.render()
+        #print self.widget.render()
         return self.widget.render()
-
-class Toolbar2(ContainerBase):
-
-    html_template= '''
-<div id="%(id)s"></div>
-     <script type="text/javascript">
-        $("#%(id)s").jqxToolBar({
-    width: "100%%",
-    height: 35,
-    tools: "%(tools)s",
-    initTools: function (type, index, tool, menuToolIninitialization) {
-        switch (index) {
-            case 0:
-                tool.jqxToggleButton({ width: 80, toggled: true });
-                            tool.text("Enabled");
-                            tool.on("click", function () {
-                                var toggled = tool.jqxToggleButton("toggled");
-                                if (toggled) {
-                                    tool.text("Enabled");
-                                } else {
-                                    tool.text("Disabled");
-                                }
-                            ginga_app.widget_handler('activate', '%(id)s', 'clicked')
-                            });
-                            break;
-            case 1:
-                tool.text("B");
-                ool.on("click", function () {
-                    var toggled = tool.jqxToggleButton("toggled");
-                });
-                break;
-            case 2:
-                tool.text("C");
-                break;
-        }
-    }
-});
-    </script>
-
-    '''
-
-    def __init__(self, orientation='horizontal',menu=None):
-        super(Toolbar2, self).__init__()
-
-        self.orientation = orientation
-        self.widget = None
-        self.tools= []
-        self.tool_count = 0
-        self.menu = menu
-        self.enable_callback('activated')
-
-    # TODO:
-    def add_button(self, text, title,iconpath=None, iconsize=None):
-        self.tools.append('button')
-        self.tool_count += 1
-
-
-    # TODO:
-    def add_separator(self):
-        self.tools.append('|')
-
-    def _cb_redirect(self, event):
-        self.make_callback('activated')
-        self.make_callback('Please')
-
-    def render(self):
-        d = dict(id = self.id, tools= ' '.join(self.tools), )
-        print 'Printing Self Tools\n' + ' '.join(self.tools)
-        print 'Tool Count: ' + str(self.tool_count)
-        print self.html_template % d
-        return self.html_template % d
-
 
 class MenuAction(WidgetBase):
 
@@ -3320,8 +3044,6 @@ def make_widget(title, wtype):
         w = TextArea(editable=True)
     elif wtype == 'toolbar':
         w = Toolbar()
-    elif wtype == 'toolbar2':
-        w = Toolbar2()
     elif wtype == 'progress':
         w = ProgressBar()
     elif wtype == 'menubar':

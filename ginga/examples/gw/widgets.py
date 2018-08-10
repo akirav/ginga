@@ -286,15 +286,7 @@ elif wname == 'stackwidget':
     w = Widgets.StackWidget()
     w.add_widget(Widgets.Label('Content of Stack 1'))
     w.add_widget(Widgets.Label('Content of Stack 2'))
-    #vbox.add_widget(w, stretch=1)
-    hbox = Widgets.HBox()
-    sbox = Widgets.SpinBox(dtype=int)
-    sbox.set_limits(0, 1, incr_value=1)
-    sbox.set_value(0)
-    sbox.add_callback('value-changed', lambda sbx, val: w.set_index(val))
-    hbox.add_widget(sbox)
     vbox.add_widget(w, stretch=1)
-    vbox.add_widget(hbox, stretch=0)
 
 elif wname == 'mdiwidget':
     w = Widgets.MDIWidget()
@@ -362,18 +354,6 @@ elif wname == 'toolbar':
     w.add_action("Toggle me", toggle=True)
     w.add_action(None, iconpath=os.path.join(icondir, 'hand_48.png'))
     vbox.add_widget(w)
-    vbox.add_widget(Widgets.Label("App content"), stretch=1)
-
-elif wname == 'toolbar2':
-    w = Widgets.Toolbar2()
-    #w.add_button('A', 'Test A').add_callback('activated', lambda w: logger.info("Please"))
-    #w.add_button('A', 'Test A')
-    w.add_separator()
-
-    w.add_button('B', 'Test B')
-    w.add_button('C', 'Test C')
-    w.add_callback('activated', lambda w: logger.info("Please"))
-    vbox.add_widget(w)
 
 elif wname == 'dialog':
     dia = Widgets.Dialog(title="Dialog Title",
@@ -398,13 +378,12 @@ elif wname == 'dialog':
 
 elif wname == 'test':
 
+    #Create Menu Bar for QPlan
     w = Widgets.Menubar()
     menu = w.add_name('File')
     menu.add_name('Quit').add_callback('activated',
                                         lambda *args: print("Quit"))
-
     menu = w.add_name('Plugins')
-
     menu.add_name('Airmass Chart').add_callback('activated',
                                          lambda *args: logger.info("chose Airmass Chart"))
     menu.add_name('Control Panel').add_callback('activated',
@@ -427,103 +406,103 @@ elif wname == 'test':
                                        lambda *args: logger.info("chose Semester Chart"))
     menu.add_name('Slew Chart').add_callback('activated',
                                        lambda *args: logger.info("chose Slew Chart"))
-    vbox.add_widget(w)
+    vbox.add_widget(w, stretch=1)
 
-    w = Widgets.Splitter(orientation='horizontal')
-    width = '100%%'
-    height = 1000
-    w.set_limits(str(width),str(height))
-    w.add_widget(Widgets.Frame(width='100%%', height='100%%'))
-    w.add_split('vertical')
-    w.add_split('horizontal')
+    #Create Splitter for Qplan
+    w = Widgets.Splitter()
 
+
+    #For Content 1
+    w.add_widget(Widgets.Label('Content of Pane 1'))
+
+    x = Widgets.Splitter()
+
+    #For Content 2
     vbox_2 = Widgets.VBox()
     a = Widgets.TabWidget()
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Report')
-    vbox_2.add_widget(a, stretch=1)
-    b = Widgets.Button("Make OPE",width='125px',fontsize='1em')
+    a.add_widget(Widgets.Frame(), title='Report')
+    vbox_2.add_widget(a, stretch=0)
+    b = Widgets.Button("Make OPE")
     b.add_callback('activated', lambda w: logger.info("Make OPE clicked"))
-    vbox_2.add_widget(b, stretch=1)
-    w.add_widget(vbox_2)
-    a = Widgets.TabWidget()
+    vbox_2.add_widget(b, stretch=0)
+    x.add_widget(vbox_2)
 
-#Added
-    #m = Widgets.Frame(width='100%%', height='100%%')
+    #For Content 3
+    a = Widgets.TabWidget()
     vbox_overall = Widgets.VBox()
     vbox_20 = Widgets.VBox()
-    vbox_20.add_widget(Widgets.Label("Files",halign='center'))
+    vbox_20.add_widget(Widgets.Label("Files"))
 
     hbox_10 = Widgets.HBox()
-    hbox_10.add_widget(Widgets.Label("Inputs:",halign='right'))
+    hbox_10.add_widget(Widgets.Label("Inputs:"))
     l = Widgets.TextEntry()
     l.set_text('.')
     hbox_10.add_widget(l)
     vbox_20.add_widget(hbox_10)
 
-    b = Widgets.Button("Load info",width='250px',fontsize='1em')
+    b = Widgets.Button("Load info")
     b.add_callback('activated', lambda w: logger.info("Load clicked"))
-    vbox_20.add_widget(b,stretch=1)
+    vbox_20.add_widget(b,stretch=0)
 
-    b = Widgets.Button("Update Current Conditions", disabled=True,width='250px',fontsize='1em')
+    b = Widgets.Button("Update Current Conditions")
     b.add_callback('activated', lambda w: logger.info("Update Current Conditions clicked"))
     vbox_20.add_widget(b)
 
-    b = Widgets.Button("Update Database from Files", disabled=True,width='250px',fontsize='1em')
+    b = Widgets.Button("Update Database from Files")
     b.add_callback('activated', lambda w: logger.info("Update Database from Files clicked"))
     vbox_20.add_widget(b)
 
     hbox_20 = Widgets.HBox()
 
-    b = Widgets.Button("Build Schedule",width='250px',fontsize='1em')
+    b = Widgets.Button("Build Schedule")
     b.add_callback('activated', lambda w: logger.info("Build clicked"))
 
     hbox_20.add_widget(b)
-    hbox_20.add_widget(Widgets.CheckBox("Use QDB", disabled=True))
+    hbox_20.add_widget(Widgets.CheckBox("Use QDB"))
     vbox_20.add_widget(hbox_20)
     o = Widgets.CheckBox("Remove scheduled OBs")
     o.set_state(True)
     vbox_20.add_widget(o)
 
-    x = Widgets.Frame(width='auto', height='75%%')
-    x.set_widget(vbox_20)
-    vbox_overall.add_widget(x)
+    vbox_overall.add_widget(vbox_20)
 
-    hbox_30 = Widgets.HBox(centeralign=True)
-    slider = Widgets.Slider(orientation='horizontal', buttons = 'false',width='100%%')
+    hbox_30 = Widgets.HBox()
+    slider = Widgets.Slider(orientation='horizontal')
     slider.set_limits(-10, 10,incr_value=1)
     slider.set_value(4)
     hbox_30.add_widget(slider)
-    hbox_30.add_widget(Widgets.TextEntrySet(text='100',editable=True))
+    hbox_30.add_widget(Widgets.TextEntrySet(text='100'))
     vbox_overall.add_widget(hbox_30)
 
-    #m.set_widget(vbox_overall)
-# End Added
     a.add_widget(vbox_overall, title='Control Panel')
-    n = Widgets.Frame(width='100%%', height='100%%')
-    n.set_widget(Widgets.Button("Remove All"))
-    a.add_widget(n, title='Errors')
+    a.add_widget(Widgets.Button("Remove All"), title='Errors')
     vbox_5 = Widgets.VBox()
     vbox_5.add_widget(a, stretch=1)
-    w.add_widget(vbox_5)
+    x.add_widget(vbox_5)
 
-    w.add_split('horizontal')
+    y = Widgets.Splitter()
 
+    #For Content 4
     vbox_4 = Widgets.VBox()
     a = Widgets.TabWidget()
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Airmass Chart')
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Night Activity Chart')
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Proposals Chart')
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Schedules Chart')
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Semester Chart')
+    a.add_widget(Widgets.Frame(), title='Airmass Chart')
+    a.add_widget(Widgets.Frame(), title='Night Activity Chart')
+    a.add_widget(Widgets.Frame(), title='Proposals Chart')
+    a.add_widget(Widgets.Frame(), title='Schedules Chart')
+    a.add_widget(Widgets.Frame(), title='Semester Chart')
     vbox_4.add_widget(a, stretch=1)
-    w.add_widget(vbox_4)
+    y.add_widget(vbox_4)
 
-    vbox_3 = Widgets.VBox()
+    #For Content 5
     a = Widgets.TabWidget()
-    a.add_widget(Widgets.Frame(width='100%%', height='100%%'), title='Slew Chart')
-    vbox_3.add_widget(a, stretch=1)
-    w.add_widget(vbox_3)
+    a.add_widget(Widgets.Frame(), title='Slew Chart')
+    y.add_widget(a)
 
+    z = Widgets.Splitter(orientation='vertical')
+    z.add_widget(x)
+    z.add_widget(y)
+
+    w.add_widget(z)
     vbox.add_widget(w, stretch=1)
 
 else:
